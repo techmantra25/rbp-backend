@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NOC</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .header { text-align: center; font-size: 20px; font-weight: bold; }
+        .content { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <section>
+    <div class="row print-code">
+        <div class="col-sm-5">
+            <div class="card shadow-sm">
+                <div class="card-header">Ordered Products (0)</div>
+                <div class="card-body pt-0">
+                                            <h5 class="display-6 text-danger">Invalid Order</h5>
+                        <p class="text-muted">Customer refreshed Order success page</p>
+                                          
+                        <br>
+
+                        
+                        <br>
+
+                    </div>    
+            </div>
+        </div>
+        <div class="col-sm-7">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                            <a href="https://luxcozi.club/admin/reward/order/1397/status/6" type="button" class="btn btn-outline-secondary btn-sm active">Waiting for NOC</a>
+                            <a href="https://luxcozi.club/admin/reward/order/1397/status/1" type="button" class="btn btn-outline-primary btn-sm ">NOC Approved</a>
+                            <a href="https://luxcozi.club/admin/reward/order/1397/status/2" type="button" class="btn btn-outline-primary btn-sm ">Address Confirmed</a>
+                            <a href="https://luxcozi.club/admin/reward/order/1397/status/3" type="button" class="btn btn-outline-primary btn-sm ">Gift Ordered</a>
+                            <a href="https://luxcozi.club/admin/reward/order/1397/status/4" type="button" class="btn btn-outline-success btn-sm ">Gift Delivered</a>
+                            <a href="https://luxcozi.club/admin/reward/order/1397/status/5" type="button" class="btn btn-outline-danger btn-sm ">Cancelled</a>
+                        </div>
+                </div>
+            </div>
+                            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <p class="small">Order Time : 20 Feb 2025 7:56 PM</p>
+                        <p>Order No : COZIREWARD25/01349</p>
+                        <h2>Test Store Oneness</h2>
+						 <p class="small text-dark mb-0"> <span class="text-muted">Owner Name :</span> Name Title </p>
+                        <p class="small text-dark mb-0"> <span class="text-muted">Email : </span> </p>
+                        <p class="small text-dark mb-0"> <span class="text-muted">Mobile : </span> 6290391954</p>
+                        <p class="small text-dark mb-0"> <span class="text-muted">Distributor : </span> Test Distributor</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="small text-dark mb-0"> <span class="text-muted">Shipping address : </span> Sector 5</p>
+                            <p class="small text-dark mb-0"> Kolkata, 700091, WEST BENGAL</p>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div class="row mb-3 justify-content-end">
+                        <div class="col-md-4 text-end">
+                            <p class="small text-muted mb-2"></p>
+                            <table class="w-100">
+                                <tr>
+                                    <td><p class="small text-muted mb-0">Points : </p></td>
+                                    <td><p class="small text-dark mb-0 text-end"> 0</p></td>
+                                </tr>
+                                <tr class="border-top">
+                                    <td><p class="small text-muted mb-0">Final Points : </p></td>
+                                    <td><p class="small text-dark mb-0 text-end"> 0</p></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
