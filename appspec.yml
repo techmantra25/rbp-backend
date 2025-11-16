@@ -8,6 +8,7 @@ hooks:
   AfterInstall:
     - location: hook_afterinstall.sh
       runas: root
+      timeout: 180
   AfterAllowTraffic:
     - location: hook_afterinstall_cleanup.sh
       runas: root
