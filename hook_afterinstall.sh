@@ -1,77 +1,82 @@
 #!/bin/bash
 set -euo pipefail
 
-YELLOW='\033[1;33m'
-GREEN='\033[0;32m'
-NC='\033[0m'
+# === Paths ===
+TEMP="/home/saas/temp-rbp-backend"
+DEST="/home/saas/app/rbp-backend"
+USER="saas"
 
-TEMP_PROJECT_PATH="/home/saas/temp-rbp-backend"
-PROJECT_PATH="/home/saas/app/rbp-backend"
+echo "************** Backend Deployment Start **************"
 
-echo -e "${YELLOW}************** Backend Deployment Start **************${NC}"
+# ==========================================================
+# 1) Fix TEMP folder permissions (CodeDeploy extracts as root)
+# ==========================================================
+echo "Fixing temp folder permissions..."
+sudo chown -R $USER:$USER "$TEMP"
 
-# === Parallel RSYNC ===
-num_cpu=$(nproc)
-process_cpu=$((num_cpu / 2))
-if [ "$process_cpu" -lt 2 ]; then
-  process_cpu=2
+# ==========================================================
+# 2) Ensure DEST folder exists and is owned by saas
+# ==========================================================
+if [ ! -d "$DEST" ]; then
+  mkdir -p "$DEST"
 fi
 
-echo "Syncing files using rsync..."
+sudo chown -R $USER:$USER "$DEST"
 
-# PASS 1 — SIZE ONLY
-ls -A "$TEMP_PROJECT_PATH" | xargs -I {} -P $process_cpu -n 1 rsync -rlpgoDK \
-  --size-only \
-  --exclude='.git' \
-  --exclude='.env' \
-  --exclude='hook_afterinstall.sh' \
-  --exclude='hook_afterinstall_cleanup.sh' \
-  --exclude='appspec.yml' \
-  "$TEMP_PROJECT_PATH"/{} "$PROJECT_PATH" --out-format="%n"
+# ==========================================================
+# 3) RSYNC files except .env
+# ==========================================================
+echo "Running rsync…"
 
-# PASS 2 — CHECKSUM
-ls -A "$TEMP_PROJECT_PATH" | xargs -I {} -P $process_cpu -n 1 rsync -rlpgoDcK \
-  --exclude='.git' \
-  --exclude='.env' \
-  --exclude='hook_afterinstall.sh' \
-  --exclude='hook_afterinstall_cleanup.sh' \
-  --exclude='appspec.yml' \
-  "$TEMP_PROJECT_PATH"/{} "$PROJECT_PATH" --out-format="%n"
+rsync -av \
+  --exclude=".git" \
+  --exclude=".env" \
+  --delete-after \
+  "$TEMP"/ "$DEST"/
 
-cd "$PROJECT_PATH"
+# ==========================================================
+# 4) Move into project directory
+# ==========================================================
+cd "$DEST"
 
-# === Composer Installation ===
-echo -e "${YELLOW}Installing Composer dependencies...${NC}"
+# ==========================================================
+# 5) Composer install (no-dev)
+# ==========================================================
+echo "Installing composer dependencies..."
 composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-# === Laravel Setup ===
-echo -e "${YELLOW}Running Laravel setup...${NC}"
+# ==========================================================
+# 6) Laravel setup (no .env override)
+# ==========================================================
+echo "Running Laravel setup..."
+
 php artisan key:generate --force || true
 php artisan storage:link || true
 
-# === Permissions ===
-echo -e "${YELLOW}Fixing permissions...${NC}"
-chown -R saas:saas "$PROJECT_PATH"
-chmod -R 775 storage bootstrap/cache
-chmod -R 775 vendor || true
+# ==========================================================
+# 7) Fix permissions
+# ==========================================================
+echo "Fixing permissions..."
+sudo chown -R $USER:$USER storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
 
-# === Clear & Cache Laravel ===
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
+# ==========================================================
+# 8) Cache Laravel
+# ==========================================================
+echo "Clearing & caching..."
+php artisan config:clear || true
+php artisan cache:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
 
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan config:cache || true
+php artisan route:cache || true
+php artisan view:cache || true
 
-# === Migrations ===
-echo -e "${YELLOW}Running migrations...${NC}"
+# ==========================================================
+# 9) Migrate database
+# ==========================================================
+echo "Running migrations..."
 php artisan migrate --force || true
 
-# === Restart PHP-FPM & Nginx ===
-echo -e "${YELLOW}Restarting PHP-FPM & Nginx...${NC}"
-sudo systemctl restart php-fpm
-sudo systemctl restart nginx
-
-echo -e "${GREEN}############# Backend Deployment Completed Successfully ##############${NC}"
+echo "############# Backend Deployment Completed Successfully ##############"
