@@ -7,7 +7,7 @@ files:
 hooks:
   AfterInstall:
     - location: hook_afterinstall.sh
-      runas: saas
+      runas: root
   AfterAllowTraffic:
     - location: hook_afterinstall_cleanup.sh
       runas: root
