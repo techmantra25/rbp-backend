@@ -136,7 +136,39 @@
                     </div>
 
                     <hr>
-
+                    
+                    <div class="row">
+                        <div class="col-12"><p class="text-dark">KYC information</p></div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="form-group">
+                                <p class="small text-muted mb-1">Pan</p>
+                               @if(!empty($data->stores->pan))
+                                <img src="{{ asset($data->stores->pan) }}" alt="" class="w-100">
+                               @endif
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="form-group position-relative">
+                                <p class="small text-muted mb-1">PAN No</p>
+                                <h5> {{ $data->stores->pan_no ? $data->stores->pan_no : 'NA' }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="form-group">
+                                <p class="small text-muted mb-1">Aadhar</p>
+                                @if(!empty($data->stores->aadhar))
+                                <img src="{{ asset($data->stores->aadhar) }}" alt="" class="w-100">
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <div class="form-group">
+                                <p class="small text-muted mb-1">Aadhar No</p>
+                                <h5> {{ $data->stores->aadhar_no ? $data->stores->aadhar_no : 'NA' }}</h5>
+                            </div>
+                        </div>
+                       
+                    </div>
                     
                 </div>
             </div>

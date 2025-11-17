@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Auth;
+
 class LoginController extends Controller
 {
     /*
@@ -26,22 +25,16 @@ class LoginController extends Controller
      *
      * @var string
      */
-    //protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    /*public function __construct()
+    public function __construct()
     {
         $this->middleware('guest')->except('logout');
-    }*/
-	
-	//logout
-    public function logout()
-    {
-        Auth::guard('web')->logout();
-        return redirect()->guest(route('login'));
+        $this->middleware('auth')->only('logout');
     }
 }

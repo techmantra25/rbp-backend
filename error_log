@@ -8,3 +8,167 @@
 [14-Aug-2025 12:31:41 Asia/Kolkata] PHP Fatal error:  Declaration of App\Http\Controllers\Admin\RetailerOrderController::dispatch(Illuminate\Http\Request $request) must be compatible with App\Http\Controllers\Controller::dispatch($job) in /home4/vangu1yt/rupa.quickdemo.in/app/Http/Controllers/Admin/RetailerOrderController.php on line 408
 [14-Aug-2025 12:32:13 Asia/Kolkata] PHP Fatal error:  Declaration of App\Http\Controllers\Admin\RetailerOrderController::dispatch(Illuminate\Http\Request $request, $id, $status) must be compatible with App\Http\Controllers\Controller::dispatch($job) in /home4/vangu1yt/rupa.quickdemo.in/app/Http/Controllers/Admin/RetailerOrderController.php on line 408
 [14-Aug-2025 12:32:34 Asia/Kolkata] PHP Fatal error:  Declaration of App\Http\Controllers\Admin\RetailerOrderController::dispatch(Illuminate\Http\Request $request) must be compatible with App\Http\Controllers\Controller::dispatch($job) in /home4/vangu1yt/rupa.quickdemo.in/app/Http/Controllers/Admin/RetailerOrderController.php on line 408
+[17-Nov-2025 08:19:55 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:20:03 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:20:08 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:20:24 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:22:59 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:23:49 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:24:52 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:25:44 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:26:49 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:26:54 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:27:02 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:27:40 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:28:13 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:28:34 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:34:03 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:50:06 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:54:10 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:55:56 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:56:49 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:57:30 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:57:51 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 08:59:43 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:01:54 UTC] PHP Warning:  require(/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:01:54 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:02:03 UTC] PHP Warning:  require(/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:02:03 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:02:10 UTC] PHP Warning:  require(/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:02:10 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:02:32 UTC] PHP Warning:  require(/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:02:32 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:07:52 UTC] PHP Warning:  require(/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:07:52 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:15:00 UTC] PHP Warning:  require(/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:15:00 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:42:18 UTC] PHP Warning:  require(/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:42:18 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:43:35 UTC] PHP Warning:  require(/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:43:35 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:49:07 UTC] PHP Warning:  require(/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34
+[17-Nov-2025 09:49:07 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home4/vangu1yt/ruparbp.mysalesdrive.in/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php83/root/usr/share/pear') in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php:34
+Stack trace:
+#0 /home4/vangu1yt/ruparbp.mysalesdrive.in/server.php(21): require_once()
+#1 {main}
+  thrown in /home4/vangu1yt/ruparbp.mysalesdrive.in/public/index.php on line 34

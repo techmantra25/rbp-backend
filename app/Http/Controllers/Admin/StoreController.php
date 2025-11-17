@@ -167,7 +167,7 @@ class StoreController extends Controller
             'name' => 'required|string|min:2|max:255',
             'business_name' => 'nullable|string|min:2|max:255',
             'distributor_id' => 'nullable',
-			'owner_fname' =>'required|string|max:255',
+			'owner_fname' =>'nullable|string|max:255',
 			'owner_lname' =>'nullable|string|max:255',
             'gst_no' => 'nullable',
             'contact' => 'required|integer|digits:10',
@@ -413,7 +413,7 @@ class StoreController extends Controller
             $from = $request->date_from ? $request->date_from : '';
             $to = date('Y-m-d', strtotime(request()->input('date_to'). '+1 day'))? date('Y-m-d', strtotime(request()->input('date_to'). '+1 day')) : '';
 
-            $distributor = $request->distributor_id ? $request->distributor_id : '';
+            
             $ase = $request->ase_id ? $request->ase_id : '';
             $asm = $request->asm_id ? $request->asm_id : '';
             $stateDetails = $request->state_id ? $request->state_id : '';
@@ -422,15 +422,12 @@ class StoreController extends Controller
 			$statusData = $request->status_id ;
 		
 			$zsm_approval = $request->zsm_approval_id ;
-            $query = Store::selectRaw('stores.*')->with('states','areas','users')->join('teams', 'teams.store_id', 'stores.id');
+            $query = Store::selectRaw('stores.*')->with('states','areas','users');
             if ($from && $to) {
             $query->whereBetween('stores.created_at', [$from, $to]);
         }
 
-        $query->when($request->distributor_id, function ($query) use ($request) {
-            $query->whereRaw("find_in_set(?, teams.distributor_id)", [$request->distributor_id]);
-        });
-
+       
         $query->when($request->ase_id, function ($query) use ($request) {
             $query->whereRaw("find_in_set(?, stores.user_id)", [$request->ase_id]);
         });
@@ -468,14 +465,14 @@ class StoreController extends Controller
            //dd($users);
         }
         else{
-            $data = Store::selectRaw('stores.*')->join('teams', 'teams.store_id', 'stores.id')->where('stores.user_id','!=','')
+            $data = Store::selectRaw('stores.*')->where('stores.user_id','!=','')
             ->with('states','areas','users')->latest('id')->cursor();
             $users = $data->all();
             //dd($data);
         }
         
         
-        $filename = "Lux-store-list-".$from.' to '.$to.".csv";
+        $filename = "Salesdrive-store-list-".$from.' to '.$to.".csv";
             $headers = [
         'Content-Type' => 'text/csv',
         'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -484,7 +481,7 @@ class StoreController extends Controller
 
     return Response::stream(function () use ($users, $headers) {
         $file = fopen('php://output', 'w');
-        fputcsv($file, ['SR', 'UNIQUE CODE','STORE', 'FIRM', 'ADDRESS','TOWN/CITY', 'AREA','DISTRICT','PINCODE','STATE','OWNER NAME','MOBILE', 'WHATSAPP', 'CONTACT PERSON', 'CONTACT PERSON PHONE', 'OWNER DATE OF BIRTH', 'OWNER DATE OF ANNIVERSARY','EMAIL', 'GST NUMBER','PAN NO','VIDEO LINK','DISTRIBUTOR','DISTRIBUTOR CODE','DISTRIBUTOR CITY','DISTRIBUTOR STATE','CREATED BY','EMP CODE', 'ASE','ASM', 'SM','RSM', 'ZSM', 'NSM','STATUS', 'DATE','TIME']);
+        fputcsv($file, ['SR', 'UNIQUE CODE','STORE', 'FIRM', 'ADDRESS','TOWN/CITY', 'AREA','DISTRICT','PINCODE','STATE','OWNER NAME','MOBILE', 'WHATSAPP', 'CONTACT PERSON', 'CONTACT PERSON PHONE', 'OWNER DATE OF BIRTH', 'OWNER DATE OF ANNIVERSARY','EMAIL', 'GST NUMBER','PAN NO','VIDEO LINK','wallet','CREATED BY','EMP CODE', 'STATUS', 'DATE','TIME']);
          $count = 1;
         foreach ($users as $row) {
             $distributorValue=[];
@@ -505,17 +502,17 @@ class StoreController extends Controller
                     $displayASEName = $catDetails->name ?? '';
                     $displayASECode = $catDetails->employee_id ?? '';
               // }
-                $store_name = $row->store_name ?? '';
+                $store_name = $row->name ?? '';
                
-                $storename = Team::where('store_id', $row->id)->with('distributors','rsm','zsm','nsm','asm','sm','ase')->first();
+                
                 //$cat = explode(",", $storename->distributor_id);
-                if (strpos($storename->distributor_id, ',') !== false) {
-                    // If a comma is present, split the string into an array
-                    $cat = explode(",", $storename->distributor_id);
-                } else {
-                    // If no comma is present, just wrap the single value into an array
-                    $cat = [$storename->distributor_id];
-                }
+                // if (strpos($storename->distributor_id, ',') !== false) {
+                //     // If a comma is present, split the string into an array
+                //     $cat = explode(",", $storename->distributor_id);
+                // } else {
+                //     // If no comma is present, just wrap the single value into an array
+                //     $cat = [$storename->distributor_id];
+                // }
                 // foreach($cat as $item1){
                                 
                 //     $distributor=DB::table('users')->where('id',$item1)->first();
@@ -529,10 +526,10 @@ class StoreController extends Controller
                 //   $distributorCodeValue=implode(', ', $distributorCode) ; 
                 //   $distributorCityValue=implode(', ', $distributorCity) ; 
                 //   $distributorStateValue=implode(', ', $distributorState) ; 
-                   $primaryDistributor=DB::table('users')->where('id',$cat[0])->first();
-            for ($i = 0; $i < count($cat); $i++) { 
+                //   $primaryDistributor=DB::table('users')->where('id',$cat[0])->first();
+            //for ($i = 0; $i < count($cat); $i++) { 
                 
-                $distributor = DB::table('users')->where('id', $cat[$i])->first();
+                //$distributor = DB::table('users')->where('id', $cat[$i])->first();
                 fputcsv($file, [
                      $count++,
                     $row->unique_code ??'',
@@ -555,6 +552,7 @@ class StoreController extends Controller
                     $row->gst_no,
                     $row->pan_no,
                     $row->video_link ?? '',
+                    $row->wallet,
                     //$primaryDistributor->name??'',
                     //$primaryDistributor->employee_id??'',
                     //$primaryDistributor->city??'',
@@ -563,23 +561,23 @@ class StoreController extends Controller
                     //$distributorCodeValue ?? '',
                     //$distributorCityValue ?? '',
                     //$distributorStateValue ?? '',
-                    $distributor->name ?? '', // Secondary Distributor Name
-                    $distributor->employee_id ?? '', // Secondary Distributor Code
-                    $distributor->city ?? '', // Secondary Distributor City
-                    $distributor->state ?? '', 
+                    // $distributor->name ?? '', // Secondary Distributor Name
+                    // $distributor->employee_id ?? '', // Secondary Distributor Code
+                    // $distributor->city ?? '', // Secondary Distributor City
+                    // $distributor->state ?? '', 
                     $displayASEName ?? '',
                     $displayASECode ?? '',
-                    $storename->ase->name ?? '',
-                    $storename->asm->name ?? '',
-                    $storename->sm->name ?? '',
-                    $storename->rsm->name ?? '',
-                    $storename->zsm->name ?? '',
-                    $storename->nsm->name ?? '',
+                    // $storename->ase->name ?? '',
+                    // $storename->asm->name ?? '',
+                    // $storename->sm->name ?? '',
+                    // $storename->rsm->name ?? '',
+                    // $storename->zsm->name ?? '',
+                    // $storename->nsm->name ?? '',
                     
                     ($row->status == 1) ? 'Active' : 'Inactive',
                     $date,
                     $time]);
-            }
+            //}
         }
 
         fclose($file);
@@ -1818,7 +1816,8 @@ public function adjustment(Request $request,$id)
 
     //bulk upload
     
-    public function bulkUpload(Request $request)
+ 
+      public function bulkUpload(Request $request)
      {
 		 //dd($request->all());
          if (!empty($request->file)) {
@@ -1861,13 +1860,19 @@ public function adjustment(Request $request,$id)
                     foreach ($importData_arr as $importData) {
                         $count = $total = 0;
                         $stateData = '';
-                        $user=Store::where('contact',$importData[0])->first();
+                        $user=Store::where('contact',$importData[0])->where('unique_code',$importData[2])->first();
                         if(!empty($user)){
                             $userId =$user->id;
                         
-                        
+                        $checkTran = RetailerUserTxnHistory::where(function ($q) use ($userId, $user) {
+                            $q->where('user_id', $userId)
+                              ->orWhere('user_id', $user->unique_code);
+                        })
+                        ->where('amount_type', 'Opening Stock')
+                        ->first();
+                        if(empty($checkTran)){
 						$user=Store::findOrFail($userId);
-						$user->wallet += $importData[1];
+						$user->wallet += $importData[3];
 						
 						$user->save();
 						
@@ -1875,12 +1880,12 @@ public function adjustment(Request $request,$id)
 									$walletTxn=new RetailerWalletTxn();
 									$walletTxn->user_id = $userId;
 									
-									$walletTxn->amount = $importData[1];
+									$walletTxn->amount = $importData[3];
 									$walletTxn->type = 1 ?? '';
 									if (!$userAmount) {
-                                        $walletTxn->final_amount = $importData[1];
+                                        $walletTxn->final_amount = $importData[3];
                                     } else {
-                                        $walletTxn->final_amount = $userAmount->final_amount + $importData[1];
+                                        $walletTxn->final_amount = $userAmount->final_amount + $importData[3];
                                     }
                         
                                     $walletTxn->entry_date = date('Y-m-d H:i:s');
@@ -1890,10 +1895,10 @@ public function adjustment(Request $request,$id)
 									$userwalletTxn=new RetailerUserTxnHistory();
 									$userwalletTxn->user_id = $userId;
 									
-									$userwalletTxn->amount = $importData[1];
+									$userwalletTxn->amount = $importData[3];
 									$userwalletTxn->type = 'Earn' ?? '';
-									$userwalletTxn->title = $importData[1].' points earn for opening stock';
-									$userwalletTxn->description = $importData[1].' points earn for opening stock';
+									$userwalletTxn->title = $importData[3].' points earn for opening stock';
+									$userwalletTxn->description = $importData[3].' points earn for opening stock';
 									$userwalletTxn->amount_type = 'Opening Stock';
 									
 									$userwalletTxn->status = 'increment';
@@ -1901,7 +1906,8 @@ public function adjustment(Request $request,$id)
 									$userwalletTxn->created_at = date('Y-m-d H:i:s');
 									$userwalletTxn->updated_at = date('Y-m-d H:i:s');
 									$userwalletTxn->save();
-                        }						
+                        }	
+                        }
                          
                     }
                     return redirect()->back()->with('success', 'File uploaded successfully');
@@ -1917,6 +1923,90 @@ public function adjustment(Request $request,$id)
  
          return redirect()->back();
      }
+     
+     
+     
+     
+     
+      
+    public function bulkUploadremove(Request $request)
+     {
+		 //dd($request->all());
+         if (!empty($request->file)) {
+             $file = $request->file('file');
+             $filename = $file->getClientOriginalName();
+             $extension = $file->getClientOriginalExtension();
+             $tempPath = $file->getRealPath();
+             $fileSize = $file->getSize();
+             $mimeType = $file->getMimeType();
+ 
+             $valid_extension = array("csv");
+             $maxFileSize = 50097152;
+             if (in_array(strtolower($extension), $valid_extension)) {
+                 if ($fileSize <= $maxFileSize) {
+                     $location = 'public/uploads/csv';
+                     $file->move($location, $filename);
+                     // $filepath = public_path($location . "/" . $filename);
+                     $filepath = $location . "/" . $filename;
+ 
+                     // dd($filepath);
+ 
+                     $file = fopen($filepath, "r");
+                     $importData_arr = array();
+                     $i = 0;
+                     while (($filedata = fgetcsv($file, 10000, ",")) !== FALSE) {
+                         $num = count($filedata);
+                         // Skip first row
+                         if ($i == 0) {
+                             $i++;
+                             continue;
+                         }
+                         for ($c = 0; $c < $num; $c++) {
+                             $importData_arr[$i][] = $filedata[$c];
+                         }
+                         $i++;
+                     }
+                     fclose($file);
+                     $successCount = 0;
+                        $userId='';
+                    foreach ($importData_arr as $importData) {
+                        $count = $total = 0;
+                        $stateData = '';
+                        $user=Store::where('contact',$importData[0])->where('unique_code',$importData[2])->first();
+                        if(!empty($user)){
+                            $userId =$user->id;
+                        
+                        
+        						$user=Store::findOrFail($userId);
+        						$user->wallet -= $importData[3];
+        						
+        						$user->save();
+        						
+        						 RetailerWalletTxn::where('user_id', $userId)
+                            ->whereDate('entry_date', '2025-11-14')
+                            ->where('amount', $importData[3])
+                            ->delete();
+        									
+                        }
+                        
+                         
+                    }
+                    return redirect()->back()->with('success', 'File uploaded successfully');
+                 } else {
+                     return redirect()->back()->with('failure', 'File too large. File must be less than 50MB.');
+                 }
+             } else {
+                return redirect()->back()->with('failure', 'Invalid File Extension. supported extensions are ' . implode(', ', $valid_extension));
+             }
+         } else {
+             return redirect()->back()->with('failure', 'No file found.');
+         }
+ 
+         return redirect()->back();
+     }
+     
+     
+     
 
     
     

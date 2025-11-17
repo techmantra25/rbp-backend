@@ -534,9 +534,10 @@ public function qrRedeem(Request $request)
                         'retailer_user_txn_histories.created_at'
                   )
                   ->join('stores', 'stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
-                  ->where('stores.user_id','!=','')
+                  
                   ->latest('retailer_user_txn_histories.id')
                   ->paginate(25);
+                 
     }
 
     return view('admin.reward.barcode.redeem', compact('data','request'));

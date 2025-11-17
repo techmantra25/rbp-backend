@@ -285,11 +285,13 @@ class StoreController extends Controller
 			$uploadPath = 'public/uploads/store';
 			$request->image->move($uploadPath, $imageName);
 			$total_path = $uploadPath.'/'.$imageName;
-            
-			return response()->json(['error' => false, 'resp' => 'Image added', 'data' => $total_path]);
+            $resp = [
+                       'data' => $total_path,
+                       ];
+			return response()->json(['error' => false, 'message' => 'Image added', 'data' => $resp]);
 
         }else {
-            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
+            return response()->json(['error' => true, 'message' => $validator->errors()->first()]);
         }
 
     }

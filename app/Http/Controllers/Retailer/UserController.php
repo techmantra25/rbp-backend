@@ -763,13 +763,13 @@ class UserController extends Controller
     {
         $updatedEntry = Store::with('states','areas')->findOrFail($id);
         if ($request['owner_name']) {
-        $updatedEntry->owner_name = $request->owner_name;
+        $updatedEntry->owner_fname = $request->owner_name;
         }
 		if ($request['owner_lname']) {
         $updatedEntry->owner_lname = $request->owner_lname;
         }
         if ($request['store_name']) {
-        $updatedEntry->store_name = $request->store_name;
+        $updatedEntry->name = $request->store_name;
         }
         if ($request['address']) {
         $updatedEntry->address = $request->address;
@@ -781,22 +781,20 @@ class UserController extends Controller
         $updatedEntry->email = $request->email;
         }
         if ($request['whatsapp_no']) {
-        $updatedEntry->whatsapp_no = $request->whatsapp_no;
+        $updatedEntry->whatsapp = $request->whatsapp_no;
         }
         if ($request['pin']) {
         $updatedEntry->pin = $request->pin;
         }
         if ($request['area']) {
-        $updatedEntry->area = $request->area;
+        $updatedEntry->area_id = $request->area;
         }
-        if ($request['address']) {
-        $updatedEntry->state = $request->state;
-        }
+       
         if ($request['city']) {
         $updatedEntry->city = $request->city;
         }
         if ($request['state']) {
-        $updatedEntry->state = $request->state;
+        $updatedEntry->state_id = $request->state;
         }
         if ($request['image']) {
             $updatedEntry->image = $request->image;
@@ -806,6 +804,13 @@ class UserController extends Controller
         }
         if ($request['pan']) {
             $updatedEntry->pan = $request->pan;
+        }
+        if ($request['pan_no']) {
+            $updatedEntry->pan_no = $request->pan_no;
+        }
+        
+        if ($request['aadhar_no']) {
+            $updatedEntry->aadhar_no = $request->aadhar_no;
         }
         if ($request['gst']) {
             $updatedEntry->gst = $request->gst;
@@ -1094,5 +1099,8 @@ class UserController extends Controller
         $data=RetailerWalletTxn::where('user_id',$id)->where('type',1)->whereYear('created_at', Carbon::now()->year)->whereMonth('created_at', Carbon::now()->month)->count();
         return response()->json(['error' => false, 'message' => 'Monthly Scan Limit History','Monthly Scan Limit'=>$scanLimit,'Scan history by retailer'=>$data,'Monthly_Scan_Limit'=>$scanLimit,'Scan_history_by_retailer'=>$data]);
     }
+    
+    
+  
 	
 }

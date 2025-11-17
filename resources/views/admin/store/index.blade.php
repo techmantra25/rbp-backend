@@ -104,6 +104,10 @@
                                             <div class="search-filter-right-el">
                                                 <a href="#csvUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk stock data upload</a>
                                             </div>
+                                            
+                                            <div class="search-filter-right-el">
+                                                <a href="#csvUploadRModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk stock data remove</a>
+                                            </div>
                                             {{--<div class="search-filter-right-el">
                                                     <a href="#panUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Pincode Bulk update</a>
                                                </div>
@@ -326,7 +330,7 @@
 
 
 
-<div class="modal fade" id="panUploadModal" data-backdrop="static">
+<div class="modal fade" id="csvUploadRModal" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -334,7 +338,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{{ route('admin.store.pan.update') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                <form method="post" action="{{ route('admin.stores.stock.remove') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
                     
