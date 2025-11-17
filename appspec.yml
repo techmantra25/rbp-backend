@@ -1,0 +1,14 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/saas/temp-rbp-backend
+
+hooks:
+  AfterInstall:
+    - location: hook_afterinstall.sh
+      runas: root
+      timeout: 180
+  AfterAllowTraffic:
+    - location: hook_afterinstall_cleanup.sh
+      runas: root
