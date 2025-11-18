@@ -57,7 +57,7 @@ php artisan storage:link || true
 # 7) Fix permissions
 # ==========================================================
 echo "Fixing permissions..."
-sudo chown -R $USER:$USER storage bootstrap/cache
+sudo chown -R $USER:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
 
 # ==========================================================
