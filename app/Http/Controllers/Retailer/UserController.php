@@ -25,7 +25,7 @@ class UserController extends Controller
         ]);
         if (!$validator->fails()) {
 				$imageName = mt_rand().'.'.$request->aadhar->extension();
-				$uploadPath = 'public/uploads/retailer/document';
+				$uploadPath = 'uploads/retailer/document';
 				$request->aadhar->move($uploadPath, $imageName);
 				$total_path = $uploadPath.'/'.$imageName;
 			     $resp = [
@@ -44,7 +44,7 @@ class UserController extends Controller
         ]);
         if (!$validator->fails()) {
 				$imageName = mt_rand().'.'.$request->aadhar->extension();
-				$uploadPath = 'public/uploads/retailer/document';
+				$uploadPath = 'uploads/retailer/document';
 				$request->aadhar->move($uploadPath, $imageName);
 				$total_path = $uploadPath.'/'.$imageName;
 			     $resp = [
@@ -63,7 +63,7 @@ class UserController extends Controller
         ]);
         if (!$validator->fails()) {
 				$imageName = mt_rand().'.'.$request->pan->extension();
-				$uploadPath = 'public/uploads/retailer/document';
+				$uploadPath = 'uploads/retailer/document';
 				$request->pan->move($uploadPath, $imageName);
 				$total_path = $uploadPath.'/'.$imageName;
 			     $resp = [
@@ -82,7 +82,7 @@ class UserController extends Controller
         ]);
         if (!$validator->fails()) {
 				$imageName = mt_rand().'.'.$request->pan->extension();
-				$uploadPath = 'public/uploads/retailer/document';
+				$uploadPath = 'uploads/retailer/document';
 				$request->pan->move($uploadPath, $imageName);
 				$total_path = $uploadPath.'/'.$imageName;
 			     $resp = [
@@ -101,7 +101,7 @@ class UserController extends Controller
         ]);
         if (!$validator->fails()) {
 				$imageName = mt_rand().'.'.$request->gst->extension();
-				$uploadPath = 'public/uploads/retailer/document';
+				$uploadPath = 'uploads/retailer/document';
 				$request->gst->move($uploadPath, $imageName);
 				$total_path = $uploadPath.'/'.$imageName;
 			     $resp = [
@@ -120,7 +120,7 @@ class UserController extends Controller
         ]);
         if (!$validator->fails()) {
 				$imageName = mt_rand().'.'.$request->gst->extension();
-				$uploadPath = 'public/uploads/retailer/document';
+				$uploadPath = 'uploads/retailer/document';
 				$request->gst->move($uploadPath, $imageName);
 				$total_path = $uploadPath.'/'.$imageName;
 			     $resp = [
@@ -139,7 +139,7 @@ class UserController extends Controller
         ]);
         if (!$validator->fails()) {
 				$imageName = mt_rand().'.'.$request->image->extension();
-				$uploadPath = 'public/uploads/retailer/document';
+				$uploadPath = 'uploads/retailer/document';
 				$request->image->move($uploadPath, $imageName);
 				$total_path = $uploadPath.'/'.$imageName;
 			     $resp = [
@@ -158,7 +158,7 @@ class UserController extends Controller
         ]);
         if (!$validator->fails()) {
 				$imageName = mt_rand().'.'.$request->image->extension();
-				$uploadPath = 'public/uploads/retailer/document';
+				$uploadPath = 'uploads/retailer/document';
 				$request->image->move($uploadPath, $imageName);
 				$total_path = $uploadPath.'/'.$imageName;
 			     $resp = [
