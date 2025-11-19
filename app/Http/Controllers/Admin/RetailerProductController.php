@@ -52,7 +52,7 @@ class RetailerProductController extends Controller
         if ($slugExistCount > 0) $slug = $slug . '-' . ($slugExistCount + 1);
         $storeData->slug = $slug;
         if (isset($request['image'])) {
-            $upload_path = "public/uploads/retailer/product/";
+            $upload_path = "uploads/retailer/product/";
             $image = $request['image'];
             $imageName = time() . "." . $image->getClientOriginalName();
             $image->move($upload_path, $imageName);
@@ -131,7 +131,7 @@ class RetailerProductController extends Controller
             $storeData->slug = $slug;
         }
         if (isset($request['image'])) {
-            $upload_path = "public/uploads/retailer/product/";
+            $upload_path = "uploads/retailer/product/";
             $image = $request['image'];
             $imageName = time() . "." . $image->getClientOriginalName();
             $image->move($upload_path, $imageName);
