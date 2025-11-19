@@ -99,7 +99,7 @@ class ProductController extends Controller
             $newEntry->slug = slugGenerate($collectedData['name'],'products');
 
             // main image handling
-            $upload_path = "public/uploads/product/";
+            $upload_path = "uploads/product/";
             if(isset($collectedData['image'])){
                 $image = $collectedData['image'];
                 $imageName = time() . "." . $image->getClientOriginalName();
@@ -216,7 +216,7 @@ class ProductController extends Controller
             }
 
             // main image handling
-            $upload_path = "public/uploads/product/";
+            $upload_path = "uploads/product/";
             
             if(isset($collectedData['image'])){
                 $image = $collectedData['image'];
@@ -913,7 +913,7 @@ class ProductController extends Controller
     public function brandingVideoSave(Request $request)
     {
            $newEntry=new BrandingVideo();
-            $upload_path = "public/uploads/video/";
+            $upload_path = "uploads/video/";
             if(isset($request['video'])){
                 $image = $request['video'];
                 $imageName = time() . "." . $image->getClientOriginalName();

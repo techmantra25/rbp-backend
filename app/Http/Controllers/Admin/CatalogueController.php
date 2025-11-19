@@ -48,7 +48,7 @@ class CatalogueController extends Controller
             "image" => "nullable|mimes:jpg,jpeg,png,svg,gif|max:10000000"
         ]);
         $collection = $request->except('_token');
-        $upload_path = "public/uploads/catalogue/";
+        $upload_path = "uploads/catalogue/";
         $data = new Catalogue;
         $data->name = $collection['name'];
         $data->start_date = $collection['start_date'];
@@ -118,7 +118,7 @@ class CatalogueController extends Controller
             "icon_path" => "nullable|mimes:jpg,jpeg,png,svg,gif|max:10000000"
         ]);
         $collection = $request->except('_token');
-        $upload_path = "public/uploads/catalogue/";
+        $upload_path = "uploads/catalogue/";
         $data = Catalogue::findOrfail($id);
         $data->name = $collection['name'];
         $data->start_date = $collection['start_date'];
