@@ -8,7 +8,7 @@
     <link href="https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css" rel="stylesheet">
     <link href="{{ asset('admin/css/style.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <title>{{ config('app.name', 'Sales Drive') }} | @yield('page')</title>
+    <title>Sales Drive | @yield('page')</title>
 	
 	<style>
 		.page-item.active .page-link {
