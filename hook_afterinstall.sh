@@ -52,6 +52,7 @@ sudo chmod -R g+s storage bootstrap/cache
 sudo chown -R $USER:www-data storage/logs
 sudo chmod -R 775 storage/logs
 
+su $USER
 # 7) Cache clearing
 echo "Clearing & caching..."
 php artisan config:clear || true
