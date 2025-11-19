@@ -14,5 +14,6 @@ yarn-error.log
 /.idea
 /.vscode
 node_modules/
+public/uploads/
 vendor/
 storage/logs/
