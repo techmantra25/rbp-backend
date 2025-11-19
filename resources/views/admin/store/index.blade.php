@@ -105,9 +105,9 @@
                                                 <a href="#csvUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk stock data upload</a>
                                             </div>
                                             
-                                            <div class="search-filter-right-el">
+                                            {{--<div class="search-filter-right-el">
                                                 <a href="#csvUploadRModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk stock data remove</a>
-                                            </div>
+                                            </div>--}}
                                             {{--<div class="search-filter-right-el">
                                                     <a href="#panUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Pincode Bulk update</a>
                                                </div>
