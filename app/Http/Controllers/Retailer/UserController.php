@@ -152,6 +152,8 @@ class UserController extends Controller
 		
 	}
 	
+	//test comment
+	
 	public function demoretailerCreateImage(Request $request) {
 		$validator = Validator::make($request->all(), [
             'image' => 'required'
