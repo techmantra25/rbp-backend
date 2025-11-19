@@ -44,7 +44,7 @@ cd "$DEST"
 # ==========================================================
 echo "Installing composer dependencies..."
 composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-
+sudo chown -R $USER:$USER "$DEST"
 # ==========================================================
 # 6) Laravel setup (no .env override)
 # ==========================================================
@@ -59,6 +59,13 @@ php artisan storage:link || true
 echo "Fixing permissions..."
 sudo chown -R $USER:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
+sudo chmod -R g+s storage
+
+sudo chown -R $USER:www-data public/uploads
+sudo chmod -R 775 public/uploads
+sudo chmod -R g+s public/uploads
+
+
 
 # ==========================================================
 # 8) Cache Laravel
