@@ -602,18 +602,7 @@ private function SendMail($emailData, $attachmentPath = null, $ccEmails = [])
 }
 
 
-  private function sendNotificationReward($sender, $receiver, $type, $route, $title, $body='')
-    {
-        $noti = new Notification();
-        $noti->sender_id = $sender;
-        $noti->receiver_id = $receiver;
-        $noti->type = $type;
-        $noti->route = $route;
-        $noti->title = $title;
-        $noti->body = $body;
-        $noti->read_flag = 0;
-        $noti->save();
-    }
+
 
 
 
@@ -867,7 +856,7 @@ private function SendMail($emailData, $attachmentPath = null, $ccEmails = [])
                                  }
 						// notification: sender, receiver, type, route, title
 						// notification to ASE
-						testFunction('admin', '', 'reward-order-place', 'front.user.order', $totalQty.' New order placed',$totalQty.' new order placed  '.$userExist->name);
+						sendNotification('admin', '', 'reward-order-place', 'front.user.order', $totalQty.' New order placed',$totalQty.' new order placed  '.$userExist->name);
 					//	if($request['user_id']==28583){
 				//         if (is_float($newOrder->amount) && $newOrder->amount != 0) {
     //                 				  $distributorData=DB::table('teams')->where('store_id',$request['user_id'])->first();
