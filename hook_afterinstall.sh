@@ -36,8 +36,8 @@ sudo chown -R $USER:www-data storage bootstrap/cache public
 sudo chmod -R 775 storage bootstrap/cache public
 sudo chmod -R g+s storage bootstrap/cache
 
-sudo chown -R $USER:www-data storage/logs
-sudo chmod -R 775 storage/logs
+#sudo chown -R $USER:www-data storage/logs
+#sudo chmod -R 775 storage/logs
 
 echo "Clearing & caching..."
 sudo -u saas php artisan config:clear || true
