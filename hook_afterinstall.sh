@@ -18,6 +18,7 @@ rsync -av \
   --exclude=".git" \
   --exclude=".env" \
   --exclude="storage" \
+  --exclude="uploads" \
   --delete-after \
   "$TEMP"/ "$DEST"/
 
