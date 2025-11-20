@@ -867,7 +867,7 @@ private function SendMail($emailData, $attachmentPath = null, $ccEmails = [])
                                  }
 						// notification: sender, receiver, type, route, title
 						// notification to ASE
-						sendNotification('admin', '', 'reward-order-place', 'front.user.order', $totalQty.' New order placed',$totalQty.' new order placed  '.$userExist->name);
+					//	sendNotification('admin', '', 'reward-order-place', 'front.user.order', $totalQty.' New order placed',$totalQty.' new order placed  '.$userExist->name);
 					//	if($request['user_id']==28583){
 				//         if (is_float($newOrder->amount) && $newOrder->amount != 0) {
     //                 				  $distributorData=DB::table('teams')->where('store_id',$request['user_id'])->first();
