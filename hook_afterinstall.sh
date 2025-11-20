@@ -50,6 +50,6 @@ sudo -u saas php artisan route:cache || true
 sudo -u saas php artisan view:cache || true
 
 echo "Running migrations..."
-sudo -u saas php artisan migrate --force || true
+#sudo -u saas php artisan migrate --force || true
 
 echo "############# Backend Deployment Completed Successfully ##############"
