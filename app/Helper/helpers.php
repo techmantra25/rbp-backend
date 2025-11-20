@@ -891,10 +891,5 @@ function SendMail($emailData, $attachmentPath = null, $ccEmail = null)
 
 
 
-if(!function_exists('testFunction')) {
-    function testFunction($sender, $receiver, $type, $route, $title, $body='')
-    {
-        dd('hi');
-    }
-}
+
  
