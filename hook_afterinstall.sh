@@ -50,7 +50,6 @@ composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 # ==========================================================
 echo "Running Laravel setup..."
 
-php artisan key:generate --force || true
 php artisan storage:link || true
 
 # ==========================================================
@@ -64,11 +63,6 @@ sudo chmod -R 775 storage bootstrap/cache
 # 8) Cache Laravel
 # ==========================================================
 echo "Clearing & caching..."
-php artisan config:clear || true
-php artisan cache:clear || true
-php artisan route:clear || true
-php artisan view:clear || true
-
 php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
@@ -77,6 +71,6 @@ php artisan view:cache || true
 # 9) Migrate database
 # ==========================================================
 echo "Running migrations..."
-php artisan migrate --force || true
+# php artisan migrate --force || true
 
 echo "############# Backend Deployment Completed Successfully ##############"
