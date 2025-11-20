@@ -10,6 +10,7 @@ use App\Models\Store;
 use App\Models\RewardCart;
 use App\Models\RewardOrder;
 use App\Models\MailActivity;
+use App\ModelsNotification;
 use App\Models\RewardOrderProduct;
 use App\Models\RetailerUserTxnHistory;
 use App\Http\Controllers\Controller;
@@ -599,6 +600,21 @@ private function SendMail($emailData, $attachmentPath = null, $ccEmails = [])
         return false;
     }
 }
+
+
+  private function sendNotification($sender, $receiver, $type, $route, $title, $body='')
+    {
+        $noti = new Notification();
+        $noti->sender_id = $sender;
+        $noti->receiver_id = $receiver;
+        $noti->type = $type;
+        $noti->route = $route;
+        $noti->title = $title;
+        $noti->body = $body;
+        $noti->read_flag = 0;
+        $noti->save();
+    }
+
 
 
 		public function rewardplaceOrder(Request $request): JsonResponse
