@@ -32,6 +32,7 @@ sudo -u saas php artisan key:generate --force || true
 sudo -u saas php artisan storage:link || true
 
 echo "Fixing permissions..."
+echo PWD
 sudo chown -R $USER:www-data storage bootstrap/cache public
 sudo chmod -R 775 storage bootstrap/cache public
 sudo chmod -R g+s storage bootstrap/cache
