@@ -1015,7 +1015,8 @@ private function SendMail($emailData, $attachmentPath = null, $ccEmails = [])
 						return response()->json([
 						'error' => false,
 						'message' => 'Order placed successfully',
-						'data' => $userExist->wallet,
+						'wallet' => $userExist->wallet,
+						'data' => $newOrder
 					    ]);
                     } catch (\Exception $e) {
                         DB::rollback();
