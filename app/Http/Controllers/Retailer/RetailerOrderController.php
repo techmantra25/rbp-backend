@@ -764,6 +764,13 @@ private function SendMail($emailData, $attachmentPath = null, $ccEmails = [])
                             $newOrder->billing_city = $userExist->area ?? null;
                             $newOrder->billing_state = $userExist->state ?? null;
                             $newOrder->billing_pin = $userExist->pin ?? null;
+                            
+                            
+                            $newOrder->shipping_address = $request->shipping_address ?? null;
+                            $newOrder->shipping_country = $request->shipping_country ?? null;
+                            $newOrder->shipping_city = $request->shipping_city ?? null;
+                            $newOrder->shipping_state = $request->shipping_state ?? null;
+                            $newOrder->shipping_pin = $request->shipping_pin ?? null;
                         
                             // Get cart items
                             $cartItems = RewardCart::where('store_id', $request['user_id'])->get();
