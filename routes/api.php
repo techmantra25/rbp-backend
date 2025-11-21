@@ -440,3 +440,6 @@ Route::get('employee/list/save/cron', [UserController::class, 'employeeSave']);
 
 Route::get('retailer/balance', [UserController::class, 'balance']);
 
+
+Route::get('retailer/transaction/remove', [UserController::class, 'transactionRemove']);
+

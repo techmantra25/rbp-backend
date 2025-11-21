@@ -1308,10 +1308,16 @@ public function ledger(Request $request)
     }
 
     // Date loop
-    $period = new \DatePeriod(
+    /*$period = new \DatePeriod(
         new \DateTime($request->startDate),
         new \DateInterval('P1D'),
         (new \DateTime($request->endDate))->modify('+1 day') // include endDate
+    );*/
+    
+    $period = new \DatePeriod(
+        (new \DateTime($request->startDate))->modify('-1 day'), // subtract one day
+        new \DateInterval('P1D'),
+        (new \DateTime($request->endDate))->modify('+1 day')    // include endDate
     );
 
     foreach ($retailers as $user) {
@@ -1458,7 +1464,39 @@ public function balance(Request $request)
 }
 
 
+public function transactionRemove(Request $request)
+{
+    // Step 1: Fetch history records that must be deleted
+    $historyRecords = RetailerUserTxnHistory::whereIn('amount_type', [
+                            'SALES', 
+                            'Sales Multiplier', 
+                            'Sales Return'
+                        ])->get();
 
+    foreach ($historyRecords as $txn) {
+
+        // 1. Remove wallet transactions matching: user_id + amount + date
+        RetailerWalletTxn::where('user_id', $txn->user_id)
+            ->where('amount', $txn->amount)
+            ->whereDate('created_at', $txn->created_at)
+            ->delete();
+
+        // 2. Deduct amount from Store Wallet
+        Store::where('id', $txn->user_id)->decrement('wallet', $txn->amount);
+    }
+
+    // Step 3: Delete history rows
+    RetailerUserTxnHistory::whereIn('amount_type', [
+        'SALES', 
+        'Sales Multiplier', 
+        'Sales Return'
+    ])->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Transactions & wallet points removed successfully'
+    ]);
+}
     
     
     
