@@ -769,6 +769,7 @@ private function SendMail($emailData, $attachmentPath = null, $ccEmails = [])
                             $newOrder->shipping_address = $request->shipping_address ?? null;
                             $newOrder->shipping_country = $request->shipping_country ?? null;
                             $newOrder->shipping_city = $request->shipping_city ?? null;
+                            $newOrder->shipping_landmark = $request->shipping_landmark ?? null;
                             $newOrder->shipping_state = $request->shipping_state ?? null;
                             $newOrder->shipping_pin = $request->shipping_pin ?? null;
                         
