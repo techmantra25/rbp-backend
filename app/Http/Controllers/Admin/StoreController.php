@@ -2006,7 +2006,32 @@ public function adjustment(Request $request,$id)
      }
      
      
-     
+     public function bulkUploadremovecron(Request $reuest)
+     {
+         // Step 1: Fetch history records that must be deleted
+        $historyRecords = RetailerUserTxnHistory::where('amount_type', 'Opening Stock')->get();
+    
+        foreach ($historyRecords as $txn) {
+    
+            // 1. Remove wallet transactions matching: user_id + amount + date
+            RetailerWalletTxn::where('user_id', $txn->user_id)
+                ->where('amount', $txn->amount)
+                ->where('type',1)
+                ->whereDate('created_at', $txn->created_at)
+                ->delete();
+    
+            // 2. Deduct amount from Store Wallet
+            
+        }
+    
+        // Step 3: Delete history rows
+        RetailerUserTxnHistory::where('amount_type', 'Opening Stock')->delete();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Transactions & wallet points removed successfully'
+        ]);
+     }
 
     
     

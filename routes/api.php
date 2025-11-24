@@ -443,3 +443,5 @@ Route::get('retailer/balance', [UserController::class, 'balance']);
 
 Route::get('retailer/transaction/remove', [UserController::class, 'transactionRemove']);
 
+ Route::get('stores/bulk/stock/remove/cron', [UserController::class, 'bulkUploadremovecron'])->name('stores.stock.remove.cron');
+
