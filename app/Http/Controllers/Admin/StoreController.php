@@ -1817,7 +1817,7 @@ public function adjustment(Request $request,$id)
     //bulk upload
     
  
-     public function bulkUpload(Request $request)
+    public function bulkUpload(Request $request)
 {
     if (!empty($request->file)) {
 
@@ -1845,6 +1845,7 @@ public function adjustment(Request $request,$id)
 
         $successCount = 0;
         $failureCount = 0;
+        $failedRows = [];
 
         $i = 0;
         while (($filedata = fgetcsv($file, 10000, ",")) !== FALSE) {
@@ -1863,6 +1864,11 @@ public function adjustment(Request $request,$id)
 
             if (!$user) {
                 $failureCount++;
+                $failedRows[] = [
+                    'mobile' => $mobile,
+                    'unique_code' => $uniqueCode,
+                    'reason' => 'User not found'
+                ];
                 $i++;
                 continue;
             }
@@ -1879,17 +1885,23 @@ public function adjustment(Request $request,$id)
 
             if ($checkTran) {
                 $failureCount++;
+                $failedRows[] = [
+                    'mobile' => $mobile,
+                    'unique_code' => $uniqueCode,
+                    'reason' => 'Opening stock already exists'
+                ];
                 $i++;
                 continue;
             }
 
-            /* ---- SUCCESS PROCESS ---- */
+            /* SUCCESS PROCESS */
 
-            // Update wallet
             $user->wallet += $points;
             $user->save();
 
-            $lastWallet = RetailerWalletTxn::where('user_id', $userId)->orderBy('id', 'DESC')->first();
+            $lastWallet = RetailerWalletTxn::where('user_id', $userId)
+                                            ->orderBy('id', 'DESC')
+                                            ->first();
 
             $walletTxn = new RetailerWalletTxn();
             $walletTxn->user_id = $userId;
@@ -1916,13 +1928,31 @@ public function adjustment(Request $request,$id)
 
         fclose($file);
 
-        return back()->with('success', 
-            "Upload Completed: $successCount success, $failureCount failed."
-        );
+        // CREATE FAILED CSV
+        if (count($failedRows) > 0) {
+            $failedFile = 'failed_rows_' . date('Y-m-d_His') . '.csv';
+            $failedPath = public_path('uploads/csv/' . $failedFile);
+            $fp = fopen($failedPath, 'w');
+
+            // Header
+            fputcsv($fp, ['Mobile', 'Unique Code', 'Reason']);
+
+            // Data
+            foreach ($failedRows as $row) {
+                fputcsv($fp, $row);
+            }
+
+            fclose($fp);
+
+            session()->put('failed_csv', 'uploads/csv/' . $failedFile);
+        }
+
+        return back()->with('success', "Upload Completed: $successCount success, $failureCount failed.");
     }
 
     return back()->with('failure', 'No file found.');
 }
+
 
      
      
