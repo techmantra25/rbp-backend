@@ -1817,112 +1817,113 @@ public function adjustment(Request $request,$id)
     //bulk upload
     
  
-      public function bulkUpload(Request $request)
-     {
-		 //dd($request->all());
-         if (!empty($request->file)) {
-             $file = $request->file('file');
-             $filename = $file->getClientOriginalName();
-             $extension = $file->getClientOriginalExtension();
-             $tempPath = $file->getRealPath();
-             $fileSize = $file->getSize();
-             $mimeType = $file->getMimeType();
- 
-             $valid_extension = array("csv");
-             $maxFileSize = 50097152;
-             if (in_array(strtolower($extension), $valid_extension)) {
-                 if ($fileSize <= $maxFileSize) {
-                     $location = 'public/uploads/csv';
-                     $file->move($location, $filename);
-                     // $filepath = public_path($location . "/" . $filename);
-                     $filepath = $location . "/" . $filename;
- 
-                     // dd($filepath);
- 
-                     $file = fopen($filepath, "r");
-                     $importData_arr = array();
-                     $i = 0;
-                     while (($filedata = fgetcsv($file, 10000, ",")) !== FALSE) {
-                         $num = count($filedata);
-                         // Skip first row
-                         if ($i == 0) {
-                             $i++;
-                             continue;
-                         }
-                         for ($c = 0; $c < $num; $c++) {
-                             $importData_arr[$i][] = $filedata[$c];
-                         }
-                         $i++;
-                     }
-                     fclose($file);
-                     $successCount = 0;
-                        $userId='';
-                    foreach ($importData_arr as $importData) {
-                        $count = $total = 0;
-                        $stateData = '';
-                        $user=Store::where('contact',$importData[0])->where('unique_code',$importData[2])->first();
-                        if(!empty($user)){
-                            $userId =$user->id;
-                        
-                        $checkTran = RetailerUserTxnHistory::where(function ($q) use ($userId, $user) {
-                            $q->where('user_id', $userId)
-                              ->orWhere('user_id', $user->unique_code);
-                        })
-                        ->where('amount_type', 'Opening Stock')
-                        ->first();
-                        if(empty($checkTran)){
-						$user=Store::findOrFail($userId);
-						$user->wallet += $importData[3];
-						
-						$user->save();
-						
-						$userAmount=RetailerWalletTxn::where('user_id',$userId)->orderby('id','desc')->first();
-									$walletTxn=new RetailerWalletTxn();
-									$walletTxn->user_id = $userId;
-									
-									$walletTxn->amount = $importData[3];
-									$walletTxn->type = 1 ?? '';
-									if (!$userAmount) {
-                                        $walletTxn->final_amount = $importData[3];
-                                    } else {
-                                        $walletTxn->final_amount = $userAmount->final_amount + $importData[3];
-                                    }
-                        
-                                    $walletTxn->entry_date = date('Y-m-d H:i:s');
-									$walletTxn->created_at = date('Y-m-d H:i:s');
-									$walletTxn->updated_at = date('Y-m-d H:i:s');
-									$walletTxn->save();
-									$userwalletTxn=new RetailerUserTxnHistory();
-									$userwalletTxn->user_id = $userId;
-									
-									$userwalletTxn->amount = $importData[3];
-									$userwalletTxn->type = 'Earn' ?? '';
-									$userwalletTxn->title = $importData[3].' points earn for opening stock';
-									$userwalletTxn->description = $importData[3].' points earn for opening stock';
-									$userwalletTxn->amount_type = 'Opening Stock';
-									
-									$userwalletTxn->status = 'increment';
-									$userwalletTxn->entry_date =  date('Y-m-d H:i:s');
-									$userwalletTxn->created_at = date('Y-m-d H:i:s');
-									$userwalletTxn->updated_at = date('Y-m-d H:i:s');
-									$userwalletTxn->save();
-                        }	
-                        }
-                         
-                    }
-                    return redirect()->back()->with('success', 'File uploaded successfully');
-                 } else {
-                     return redirect()->back()->with('failure', 'File too large. File must be less than 50MB.');
-                 }
-             } else {
-                return redirect()->back()->with('failure', 'Invalid File Extension. supported extensions are ' . implode(', ', $valid_extension));
-             }
-         } else {
-             return redirect()->back()->with('failure', 'No file found.');
-         }
- 
-         return redirect()->back();
-     }
+     public function bulkUpload(Request $request)
+{
+    if (!empty($request->file)) {
+
+        $file = $request->file('file');
+        $filename = $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        $fileSize = $file->getSize();
+
+        $valid_extension = ["csv"];
+        $maxFileSize = 50097152;
+
+        if (!in_array(strtolower($extension), $valid_extension)) {
+            return back()->with('failure', 'Invalid File Extension. Only CSV allowed.');
+        }
+
+        if ($fileSize > $maxFileSize) {
+            return back()->with('failure', 'File too large. Max 50MB allowed.');
+        }
+
+        $location = 'public/uploads/csv';
+        $file->move($location, $filename);
+        $filepath = $location . "/" . $filename;
+
+        $file = fopen($filepath, "r");
+
+        $successCount = 0;
+        $failureCount = 0;
+
+        $i = 0;
+        while (($filedata = fgetcsv($file, 10000, ",")) !== FALSE) {
+
+            if ($i == 0) { $i++; continue; } // Skip header
+
+            // CSV columns
+            $mobile     = $filedata[0] ?? null;
+            $uniqueCode = $filedata[2] ?? null;
+            $points     = $filedata[3] ?? 0;
+
+            // Check user
+            $user = Store::where('contact', $mobile)
+                         ->where('unique_code', $uniqueCode)
+                         ->first();
+
+            if (!$user) {
+                $failureCount++;
+                $i++;
+                continue;
+            }
+
+            $userId = $user->id;
+
+            // Already Opening Stock added?
+            $checkTran = RetailerUserTxnhistory::where(function ($q) use ($userId, $user) {
+                    $q->where('user_id', $userId)
+                      ->orWhere('user_id', $user->unique_code);
+                })
+                ->where('amount_type', 'Opening Stock')
+                ->first();
+
+            if ($checkTran) {
+                $failureCount++;
+                $i++;
+                continue;
+            }
+
+            /* ---- SUCCESS PROCESS ---- */
+
+            // Update wallet
+            $user->wallet += $points;
+            $user->save();
+
+            $lastWallet = RetailerWalletTxn::where('user_id', $userId)->orderBy('id', 'DESC')->first();
+
+            $walletTxn = new RetailerWalletTxn();
+            $walletTxn->user_id = $userId;
+            $walletTxn->amount = $points;
+            $walletTxn->type = 1;
+            $walletTxn->final_amount = $lastWallet ? $lastWallet->final_amount + $points : $points;
+            $walletTxn->entry_date = now();
+            $walletTxn->save();
+
+            $history = new RetailerUserTxnHistory();
+            $history->user_id = $userId;
+            $history->amount = $points;
+            $history->type = 'Earn';
+            $history->title = "$points points earn for opening stock";
+            $history->description = "$points points earn for opening stock";
+            $history->amount_type = 'Opening Stock';
+            $history->status = 'increment';
+            $history->entry_date = now();
+            $history->save();
+
+            $successCount++;
+            $i++;
+        }
+
+        fclose($file);
+
+        return back()->with('success', 
+            "Upload Completed: $successCount success, $failureCount failed."
+        );
+    }
+
+    return back()->with('failure', 'No file found.');
+}
+
      
      
      
