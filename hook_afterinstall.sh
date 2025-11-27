@@ -50,7 +50,7 @@ composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 # ==========================================================
 echo "Running Laravel setup..."
 
-php artisan storage:link || true
+# php artisan storage:link || true
 
 # ==========================================================
 # 7) Fix permissions
