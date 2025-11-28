@@ -1815,7 +1815,7 @@ public function adjustment(Request $request,$id)
 
 
     //bulk upload
-    
+    //bulk upload code
  
     public function bulkUpload(Request $request)
 {
