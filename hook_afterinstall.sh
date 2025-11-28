@@ -98,7 +98,12 @@ composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 # ==========================================================
 echo "Running Laravel setup..."
 
-# php artisan storage:link || true
+if [ ! -L "public/storage" ]; then
+    php artisan storage:link
+else
+    echo "storage link exists, skipping..."
+fi
+
 
 # ==========================================================
 # 7) Fix permissions
