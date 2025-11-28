@@ -32,8 +32,8 @@ composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 sudo chown -R $USER:$USER "$DEST"
 
 # 4) Laravel setup
-sudo -u saas php artisan key:generate --force || true
-sudo -u saas php artisan storage:link || true
+# sudo -u saas php artisan key:generate --force || true
+# sudo -u saas php artisan storage:link || true
 
 echo "Fixing permissions..."
 sudo chown -R $USER:www-data storage bootstrap/cache public
