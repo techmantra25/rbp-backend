@@ -2,6 +2,12 @@
 @section('page', 'Store')
 @section('content')
 <section class="store-sec ">
+    
+    @if(session('failed_csv'))
+        <a href="{{ session('failed_csv') }}" download class="btn btn-danger">
+            Download Failed Rows
+        </a>
+    @endif
     <div class="row">
         <div class="col-xl-12 order-2 order-xl-1">
             <div class="card search-card">
