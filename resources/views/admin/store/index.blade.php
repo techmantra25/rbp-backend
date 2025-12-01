@@ -218,7 +218,7 @@
                             if ($item->status == 1) continue;
                             }
                             }
-                              
+                              $userId = $item->id;
                               $checkTran = DB::table('retailer_user_txn_histories')->where(function ($q) use ($userId, $user) {
                                     $q->where('user_id', $item->id)
                                       ->orWhere('user_id', $item->unique_code);
