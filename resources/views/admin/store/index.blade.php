@@ -219,8 +219,8 @@
                             }
                             }
                               $userId = $item->id;
-                              $checkTran = DB::table('retailer_user_txn_histories')->where(function ($q) use ($userId, $user) {
-                                    $q->where('user_id', $item->id)
+                              $checkTran = DB::table('retailer_user_txn_histories')->where(function ($q) use ($userId, $item) {
+                                    $q->where('user_id', $userId)
                                       ->orWhere('user_id', $item->unique_code);
                                 })
                                 ->where('amount_type', 'Opening Stock')

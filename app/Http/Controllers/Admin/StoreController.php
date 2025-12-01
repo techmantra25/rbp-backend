@@ -484,9 +484,9 @@ class StoreController extends Controller
         fputcsv($file, ['SR', 'UNIQUE CODE','STORE', 'FIRM', 'ADDRESS','TOWN/CITY', 'AREA','DISTRICT','PINCODE','STATE','OWNER NAME','MOBILE', 'WHATSAPP', 'CONTACT PERSON', 'CONTACT PERSON PHONE', 'OWNER DATE OF BIRTH', 'OWNER DATE OF ANNIVERSARY','EMAIL', 'GST NUMBER','PAN NO','VIDEO LINK','OPENING POINT','WALLET','CREATED BY','EMP CODE', 'STATUS', 'DATE','TIME']);
          $count = 1;
         foreach ($users as $row) {
-            
-            $checkTran = RetailerUserTxnhistory::where(function ($q) use ($userId, $user) {
-                                    $q->where('user_id', $item->id)
+            $userId = $row->id;
+            $checkTran = RetailerUserTxnhistory::where(function ($q) use ($userId, $row) {
+                                    $q->where('user_id', $userId)
                                       ->orWhere('user_id', $item->unique_code);
                                 })
                                 ->where('amount_type', 'Opening Stock')
