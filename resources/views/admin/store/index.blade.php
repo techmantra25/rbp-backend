@@ -3,11 +3,13 @@
 @section('content')
 <section class="store-sec ">
     
-    @if(session('failed_csv'))
-        <a href="{{ session('failed_csv') }}" download class="btn btn-danger">
-            Download Failed Rows
-        </a>
-    @endif
+  @if ($errors->any())
+<script>
+    $(document).ready(function () {
+        $('#csvUploadModal').modal('show');
+    });
+</script>
+@endif
     <div class="row">
         <div class="col-xl-12 order-2 order-xl-1">
             <div class="card search-card">
@@ -108,7 +110,7 @@
                                         
                                     </div>
                                             <div class="search-filter-right-el">
-                                                <a href="#csvUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk stock data upload</a>
+                                                <a href="#csvUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk opening point upload</a>
                                             </div>
                                             
                                             {{--<div class="search-filter-right-el">
@@ -200,6 +202,7 @@
                                 <th>Date</th>
 							
                                 <th>Status</th>
+                                <th>Opening Point</th>
                                  <th>Wallet Balance</th>
                                  <th></th>
                             </tr>
@@ -216,6 +219,12 @@
                             }
                             }
                               
+                              $checkTran = \App\Models\RetailerUserTxnhistory::where(function ($q) use ($userId, $user) {
+                                    $q->where('user_id', $item->id)
+                                      ->orWhere('user_id', $item->unique_code);
+                                })
+                                ->where('amount_type', 'Opening Stock')
+                                ->first();
                             @endphp
                             <tr>
                                 <td>{{ ($data->firstItem()) + $index }}</td>
@@ -255,6 +264,7 @@
                                 </td>
 								
                                 <td><span class="badge bg-{{($item->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span></td>
+                                <td>{{$checkTran->amount}}</td>
                                  <td>{{ $item->wallet ??'' }}</td>
                                  <td>
                                         <td>

@@ -481,9 +481,16 @@ class StoreController extends Controller
 
     return Response::stream(function () use ($users, $headers) {
         $file = fopen('php://output', 'w');
-        fputcsv($file, ['SR', 'UNIQUE CODE','STORE', 'FIRM', 'ADDRESS','TOWN/CITY', 'AREA','DISTRICT','PINCODE','STATE','OWNER NAME','MOBILE', 'WHATSAPP', 'CONTACT PERSON', 'CONTACT PERSON PHONE', 'OWNER DATE OF BIRTH', 'OWNER DATE OF ANNIVERSARY','EMAIL', 'GST NUMBER','PAN NO','VIDEO LINK','wallet','CREATED BY','EMP CODE', 'STATUS', 'DATE','TIME']);
+        fputcsv($file, ['SR', 'UNIQUE CODE','STORE', 'FIRM', 'ADDRESS','TOWN/CITY', 'AREA','DISTRICT','PINCODE','STATE','OWNER NAME','MOBILE', 'WHATSAPP', 'CONTACT PERSON', 'CONTACT PERSON PHONE', 'OWNER DATE OF BIRTH', 'OWNER DATE OF ANNIVERSARY','EMAIL', 'GST NUMBER','PAN NO','VIDEO LINK','OPENING POINT','WALLET','CREATED BY','EMP CODE', 'STATUS', 'DATE','TIME']);
          $count = 1;
         foreach ($users as $row) {
+            
+            $checkTran = RetailerUserTxnhistory::where(function ($q) use ($userId, $user) {
+                                    $q->where('user_id', $item->id)
+                                      ->orWhere('user_id', $item->unique_code);
+                                })
+                                ->where('amount_type', 'Opening Stock')
+                                ->first();
             $distributorValue=[];
             $distributorName=[];
             $distributorCode=[];
@@ -552,6 +559,7 @@ class StoreController extends Controller
                     $row->gst_no,
                     $row->pan_no,
                     $row->video_link ?? '',
+                    $checkTran->amount,
                     $row->wallet,
                     //$primaryDistributor->name??'',
                     //$primaryDistributor->employee_id??'',
