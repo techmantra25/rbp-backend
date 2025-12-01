@@ -225,6 +225,7 @@
                                 })
                                 ->where('amount_type', 'Opening Stock')
                                 ->first();
+                                
                             @endphp
                             <tr>
                                 <td>{{ ($data->firstItem()) + $index }}</td>
@@ -264,7 +265,7 @@
                                 </td>
 								
                                 <td><span class="badge bg-{{($item->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span></td>
-                                <td>{{$checkTran->amount}}</td>
+                                <td>{{$checkTran->amount ?? ''}}</td>
                                  <td>{{ $item->wallet ??'' }}</td>
                                  <td>
                                         <td>
