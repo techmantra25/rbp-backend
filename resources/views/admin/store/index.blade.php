@@ -316,20 +316,32 @@
     </div>
     
     
+    
+    <div id="successMessage" class="alert alert-success" style="display:none"></div>
+
+<a id="failedCsvBtn" class="btn btn-danger" href="#" download style="display:none">
+    Download Failed CSV
+</a>
+
+<div id="failedRowsDiv" style="display:none">
+    <h4>Failed Rows</h4>
+    <table class="table" id="failedRowsTable">
+        <thead>
+            <tr>
+                <th>Mobile</th>
+                <th>Unique Code</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
      <!-- Modal -->
                                    
 </section>
 
 
-<tbody id="failedList">
-@foreach(session('failed_rows', []) as $f)
-<tr>
-    <td>{{ $f['mobile'] }}</td>
-    <td>{{ $f['unique_code'] }}</td>
-    <td>{{ $f['reason'] }}</td>
-</tr>
-@endforeach
-</tbody>
+
 
 <div class="modal fade" id="csvUploadModal" data-backdrop="static">
     <div class="modal-dialog">
@@ -535,8 +547,48 @@ $(document).ready(function() {
 
 @if(session('failed_rows'))
 <script>
-    var failedModal = new bootstrap.Modal(document.getElementById('failedModal'));
-    failedModal.show();
+$(document).ready(function() {
+    $.ajax({
+    url: "{{ route('admin.stores.index') }}",
+    type: "POST",
+    data: new FormData($('#borrowerCsvUpload')[0]),
+    processData: false,
+    contentType: false,
+    success: function (res) {
+
+        // Success message
+        $("#successMessage").text(
+            "Upload Completed: " + res.success_count + " success, " + res.failure_count + " failed."
+        ).show();
+
+        // Show Download button if failed file exists
+        if (res.failed_file) {
+            $("#failedCsvBtn")
+                .attr("href", res.failed_file)
+                .show();
+        }
+
+        // Show Failed rows table
+        if (res.failed_rows.length > 0) {
+
+            let html = "";
+
+            res.failed_rows.forEach(function (row) {
+                html += `
+                    <tr>
+                        <td>${row.mobile}</td>
+                        <td>${row.code}</td>
+                        <td>${row.reason}</td>
+                    </tr>
+                `;
+            });
+
+            $("#failedRowsTable tbody").html(html);
+            $("#failedRowsDiv").show();
+        }
+    }
+});
+});
 </script>
 @endif
 @endsection
