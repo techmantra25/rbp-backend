@@ -1321,6 +1321,9 @@ public function ledger(Request $request)
     );
 
     foreach ($retailers as $user) {
+        if($user->unique_code==32644891){
+            dd('exist');
+        }
         foreach ($period as $dateObj) {
             $date = $dateObj->format('Y-m-d');
 
