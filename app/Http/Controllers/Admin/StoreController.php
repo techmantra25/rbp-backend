@@ -487,7 +487,7 @@ class StoreController extends Controller
             $userId = $row->id;
             $checkTran = RetailerUserTxnhistory::where(function ($q) use ($userId, $row) {
                                     $q->where('user_id', $userId)
-                                      ->orWhere('user_id', $item->unique_code);
+                                      ->orWhere('user_id', $row->unique_code);
                                 })
                                 ->where('amount_type', 'Opening Stock')
                                 ->first();
@@ -559,7 +559,7 @@ class StoreController extends Controller
                     $row->gst_no,
                     $row->pan_no,
                     $row->video_link ?? '',
-                    $checkTran->amount,
+                    $checkTran->amount ??'',
                     $row->wallet,
                     //$primaryDistributor->name??'',
                     //$primaryDistributor->employee_id??'',

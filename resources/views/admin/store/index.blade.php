@@ -2,14 +2,8 @@
 @section('page', 'Store')
 @section('content')
 <section class="store-sec ">
-    
-  @if ($errors->any())
-<script>
-    $(document).ready(function () {
-        $('#csvUploadModal').modal('show');
-    });
-</script>
-@endif
+
+ 
     <div class="row">
         <div class="col-xl-12 order-2 order-xl-1">
             <div class="card search-card">
@@ -187,6 +181,10 @@
 							
                         </div>
                     </div>
+                    @if(session('failed_rows'))
+                    {{dd('hi)}}
+                        <a href="{{ asset(session('failed_csv')) }}" class="btn btn-danger mt-3">Download Failed Rows CSV</a>
+                    @endif
                     <div class="table-responsive">
                         <table class="table admin-table no-sticky">
                         <thead>
@@ -324,6 +322,17 @@
      <!-- Modal -->
                                    
 </section>
+
+
+<tbody id="failedList">
+@foreach(session('failed_rows', []) as $f)
+<tr>
+    <td>{{ $f['mobile'] }}</td>
+    <td>{{ $f['unique_code'] }}</td>
+    <td>{{ $f['reason'] }}</td>
+</tr>
+@endforeach
+</tbody>
 
 <div class="modal fade" id="csvUploadModal" data-backdrop="static">
     <div class="modal-dialog">
@@ -526,4 +535,11 @@ $(document).ready(function() {
     });
 });
 </script>
+
+@if(session('failed_rows'))
+<script>
+    var failedModal = new bootstrap.Modal(document.getElementById('failedModal'));
+    failedModal.show();
+</script>
+@endif
 @endsection
