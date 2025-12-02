@@ -181,10 +181,7 @@
 							
                         </div>
                     </div>
-                    @if(session('failed_rows'))
-                    {{dd('hi)}}
-                        <a href="{{ asset(session('failed_csv')) }}" class="btn btn-danger mt-3">Download Failed Rows CSV</a>
-                    @endif
+                    
                     <div class="table-responsive">
                         <table class="table admin-table no-sticky">
                         <thead>
