@@ -351,12 +351,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{{ route('admin.stores.stock.save') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                <form method="post" action="{{ route('admin.stores.stock.save') }}" 
+                      enctype="multipart/form-data" id="csvForm">
+                    @csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
-                    <a href="{{ asset('admin/stock.csv') }}">Download Sample CSV</a>
-                    <br>
-                    <button type="submit" class="btn btn-danger mt-3" id="csvImportBtn">Import <i class="fas fa-upload"></i></button>
+                    <button type="button" class="btn btn-danger mt-3" id="csvSubmitBtn">
+                        Import <i class="fas fa-upload"></i>
+                    </button>
                 </form>
             </div>
         </div>
@@ -373,12 +375,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{{ route('admin.stores.stock.remove') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                <form method="post" action="{{ route('admin.stores.stock.remove') }}" enctype="multipart/form-data" id="">@csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
                     
                     <br>
-                    <button type="submit" class="btn btn-danger mt-3" id="csvImportBtn">Import <i class="fas fa-upload"></i></button>
+                    <button type="submit" class="btn btn-danger mt-3" id="">Import <i class="fas fa-upload"></i></button>
                 </form>
             </div>
         </div>
@@ -394,12 +396,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{{ route('admin.store.bulk.transfer') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                <form method="post" action="{{ route('admin.store.bulk.transfer') }}" enctype="multipart/form-data" id="">@csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
                     <a href="{{ asset('admin/distributor.csv') }}">Download Sample CSV</a>
                     <br>
-                    <button type="submit" class="btn btn-danger mt-3" id="csvImportBtn">Import <i class="fas fa-upload"></i></button>
+                    <button type="submit" class="btn btn-danger mt-3" id="">Import <i class="fas fa-upload"></i></button>
                 </form>
             </div>
         </div>
@@ -415,12 +417,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{{ route('admin.name.csv.upload') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                <form method="post" action="{{ route('admin.name.csv.upload') }}" enctype="multipart/form-data" id="">@csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
                     <a href="{{ asset('admin/name update_Sheet1.csv') }}">Download Sample CSV</a>
                     <br>
-                    <button type="submit" class="btn btn-danger mt-3" id="csvImportBtn">Import <i class="fas fa-upload"></i></button>
+                    <button type="submit" class="btn btn-danger mt-3" id="">Import <i class="fas fa-upload"></i></button>
                 </form>
             </div>
         </div>
@@ -437,12 +439,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{{ route('admin.store.bulk.distributor.csv.upload') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                <form method="post" action="{{ route('admin.store.bulk.distributor.csv.upload') }}" enctype="multipart/form-data" id="">@csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
                     <a href="{{ asset('admin/bulk_distributor.csv') }}">Download Sample CSV</a>
                     <br>
-                    <button type="submit" class="btn btn-danger mt-3" id="csvImportBtn">Import <i class="fas fa-upload"></i></button>
+                    <button type="submit" class="btn btn-danger mt-3" id="">Import <i class="fas fa-upload"></i></button>
                 </form>
             </div>
         </div>
@@ -458,12 +460,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{{ route('admin.store.limit.csv.upload') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                <form method="post" action="{{ route('admin.store.limit.csv.upload') }}" enctype="multipart/form-data" id="">@csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
                     <a href="">Download Sample CSV</a>
                     <br>
-                    <button type="submit" class="btn btn-danger mt-3" id="csvImportBtn">Import <i class="fas fa-upload"></i></button>
+                    <button type="submit" class="btn btn-danger mt-3" id="">Import <i class="fas fa-upload"></i></button>
                 </form>
             </div>
         </div>
@@ -543,52 +545,61 @@ $(document).ready(function() {
         });
     });
 });
-</script>
 
-@if(session('failed_rows'))
+
+
+
+</script>
 <script>
-$(document).ready(function() {
+   $("#csvSubmitBtn").click(function(e){
+    e.preventDefault();
+
+    let formData = new FormData(document.getElementById("csvForm"));
+
     $.ajax({
-    url: "{{ route('admin.stores.index') }}",
-    type: "POST",
-    data: new FormData($('#borrowerCsvUpload')[0]),
-    processData: false,
-    contentType: false,
-    success: function (res) {
+        url: "{{ route('admin.stores.stock.save') }}",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        xhrFields: {
+            responseType: 'blob' // important for CSV download
+        },
+        success: function (data, status, xhr) {
 
-        // Success message
-        $("#successMessage").text(
-            "Upload Completed: " + res.success_count + " success, " + res.failure_count + " failed."
-        ).show();
+            let contentType = xhr.getResponseHeader("Content-Type");
+        
+            // If FILE is coming
+            if (contentType.includes("text/csv")) {
+        
+                // ðŸ”¥ Get counts from headers
+                let successCount = xhr.getResponseHeader("X-Success-Count");
+                let failureCount = xhr.getResponseHeader("X-Failure-Count");
+        
+                // Download CSV
+                var blob = new Blob([data], { type: "text/csv" });
+                var link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = "failed_rows.csv";
+                link.click();
+        
+               // Swal.fire( "Upload Completed",);
+               toastFire('success', "Upload Completed");
+        
+                setTimeout(() => window.location.reload(), 2000);
+                return;
+            }
 
-        // Show Download button if failed file exists
-        if (res.failed_file) {
-            $("#failedCsvBtn")
-                .attr("href", res.failed_file)
-                .show();
+    // âœ” JSON data (no failures)
+            //Swal.fire("Upload Completed!","Success: " + data.successCount + "<br>" + "Failed: " + data.failureCount, "success");
+        toastFire('success', "Upload Completed");
+            setTimeout(() => window.location.reload(), 2000);
+        },
+        error: function() {
+            toastFire('error', 'Failed to update');
         }
-
-        // Show Failed rows table
-        if (res.failed_rows.length > 0) {
-
-            let html = "";
-
-            res.failed_rows.forEach(function (row) {
-                html += `
-                    <tr>
-                        <td>${row.mobile}</td>
-                        <td>${row.code}</td>
-                        <td>${row.reason}</td>
-                    </tr>
-                `;
-            });
-
-            $("#failedRowsTable tbody").html(html);
-            $("#failedRowsDiv").show();
-        }
-    }
-});
+    });
 });
 </script>
-@endif
+
 @endsection

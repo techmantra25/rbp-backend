@@ -404,7 +404,7 @@ class StoreController extends Controller
 
     //export data into csv
 
-  public function csvExport(Request $request)
+ /* public function csvExport(Request $request)
   {
       $from = $request->date_from ? $request->date_from : '';
       $to = date('Y-m-d', strtotime(request()->input('date_to'). '+1 day'))? date('Y-m-d', strtotime(request()->input('date_to'). '+1 day')) : '';
@@ -674,7 +674,175 @@ class StoreController extends Controller
         //     //output all remaining data on a file pointer
         //     fpassthru($f);
         // }
+    }*/
+    
+    
+    
+   public function csvExport(Request $request)
+{
+    
+   
+    /* -------------------------------------------
+     *  REMOVE TIME + MEMORY LIMIT
+     * ------------------------------------------- */
+    ini_set('memory_limit', '-1');
+    ini_set('max_execution_time', 0);
+    set_time_limit(0);
+
+    /* -------------------------------------------
+     *  FILTERS
+     * ------------------------------------------- */
+    $from = $request->date_from ?: '';
+    $to   = $request->date_to 
+            ? date('Y-m-d', strtotime($request->date_to . '+1 day')) 
+            : '';
+
+    $query = Store::select('stores.*')
+        ->with(['states', 'areas'])
+        ->where('stores.user_id', '!=', '')->orderby('id','desc');
+
+    if ($from && $to) {
+        $query->whereBetween('stores.created_at', [$from, $to]);
     }
+
+    if ($request->ase_id) {
+        $query->whereRaw("find_in_set(?, stores.user_id)", [$request->ase_id]);
+    }
+
+    if ($request->asm_id) {
+        $query->whereRaw("find_in_set(?, stores.user_id)", [$request->asm_id]);
+    }
+
+    if ($request->state_id) {
+        $query->where('stores.state_id', $request->state_id);
+    }
+
+    if ($request->area_id) {
+        $query->where('stores.area_id', $request->area_id);
+    }
+
+    if ($request->keyword) {
+        $keyword = $request->keyword;
+        $query->where(function($q) use ($keyword) {
+            $q->where('stores.name', 'like', "%$keyword%")
+              ->orWhere('stores.business_name', 'like', "%$keyword%")
+              ->orWhere('stores.owner_fname', 'like', "%$keyword%")
+              ->orWhere('stores.contact', '=', $keyword)
+              ->orWhere('stores.pin', '=', $keyword);
+        });
+    }
+
+    if ($request->filled('status_id')) {
+        $query->where('stores.status', $request->status_id === "active" ? 1 : 0);
+    }
+
+    if ($request->filled('zsm_approval_id')) {
+        $query->where('stores.zsm_approval', $request->zsm_approval_id === "active" ? 1 : 0);
+    }
+
+    /* -------------------------------------------
+     *  FILE NAME + HEADERS
+     * ------------------------------------------- */
+    $filename = "Salesdrive-store-list-$from to $to.csv";
+
+    $headers = [
+        "Content-Type"        => "text/csv",
+        "Content-Disposition" => "attachment; filename=\"$filename\"",
+    ];
+
+    /* -------------------------------------------
+     *   STREAM RESPONSE (FAST, LOW MEMORY)
+     * ------------------------------------------- */
+    return response()->stream(function () use ($query) {
+
+        $file = fopen('php://output', 'w');
+
+        /* ---------- CSV HEADER ROW ---------- */
+        fputcsv($file, [
+            'SR','UNIQUE CODE','STORE','FIRM','ADDRESS','TOWN/CITY','AREA','DISTRICT',
+            'PINCODE','STATE','OWNER NAME','MOBILE','WHATSAPP','CONTACT PERSON',
+            'CONTACT PERSON PHONE','OWNER DOB','OWNER ANNIVERSARY','EMAIL','GST',
+            'PAN','VIDEO LINK','OPENING POINT','WALLET','CREATED BY','EMP CODE',
+            'STATUS','DATE','TIME'
+        ]);
+
+        $sr = 1;
+
+        /* -------------------------------------------
+         * PROCESS IN CHUNKS (1000 RECORDS AT ONCE)
+         * ------------------------------------------- */
+        $query->chunk(1000, function ($chunkUsers) use ($file, &$sr) {
+
+            /* -------------------------------------------
+             * PRELOAD TRANSACTION HISTORY (NO LOOP QUERIES)
+             * ------------------------------------------- */
+            $txnUserIds = $chunkUsers->pluck('id')
+                ->merge($chunkUsers->pluck('unique_code'));
+
+            $transactions = RetailerUserTxnhistory::whereIn('user_id', $txnUserIds)
+                ->where('amount_type', 'Opening Stock')
+                ->get()
+                ->keyBy('user_id');
+
+            /* -------------------------------------------
+             * PRELOAD USER (ASE / CREATOR) DETAILS
+             * ------------------------------------------- */
+            $aseUserIds = $chunkUsers->pluck('user_id')->toArray();
+
+            $aseUsers = User::whereIn('id', $aseUserIds)
+                ->get()
+                ->keyBy('id');
+
+            /* -------------------------------------------
+             * LOOP — **NO DB Queries inside**
+             * ------------------------------------------- */
+            foreach ($chunkUsers as $row) {
+
+                $txn = $transactions[$row->id] ?? null;
+                $ase = $aseUsers[$row->user_id] ?? null;
+
+                $date = date('j F, Y', strtotime($row->created_at));
+                $time = date('h:i A', strtotime($row->created_at));
+
+                fputcsv($file, [
+                    $sr++,
+                    $row->unique_code,
+                    ucwords($row->name),
+                    ucwords($row->business_name),
+                    ucwords($row->address),
+                    $row->city,
+                    $row->areas->name ?? '',
+                    $row->district ?? '',
+                    $row->pin,
+                    $row->states->name ?? '',
+                    ucwords($row->owner_fname.' '.$row->owner_lname),
+                    $row->contact,
+                    $row->whatsapp,
+                    ucwords($row->contact_person_fname.' '.$row->contact_person_lname),
+                    $row->contact_person_phone,
+                    $row->date_of_birth,
+                    $row->date_of_anniversary,
+                    $row->email,
+                    $row->gst_no,
+                    $row->pan_no,
+                    $row->video_link ?? '',
+                    $txn->amount ?? '',
+                    $row->wallet,
+                    $ase->name ?? '',
+                    $ase->employee_id ?? '',
+                    ($row->status == 1 ? 'Active' : 'Inactive'),
+                    $date,
+                    $time
+                ]);
+            }
+        });
+
+        fclose($file);
+
+    }, 200, $headers);
+}
+
+
     
        //user no order reason list
     public function noOrderreason(Request $request)
@@ -1952,10 +2120,20 @@ public function adjustment(Request $request,$id)
 
             fclose($fp);
 
-            session()->put('failed_csv', 'uploads/csv/' . $failedFile);
+            return response()->file($failedPath, [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=$failedFile",
+                "X-Success-Count" => $successCount,
+                "X-Failure-Count" => $failureCount
+            ])->deleteFileAfterSend(true);
         }
 
-        return back()->with('success', "Upload Completed: $successCount success, $failureCount failed.");
+
+         return response()->json([
+            'successCount' => $successCount,
+            'failureCount' => $failureCount
+        ]);
+        //return back()->with('success', "Upload Completed: $successCount success, $failureCount failed.");
     }
 
     return back()->with('failure', 'No file found.');
