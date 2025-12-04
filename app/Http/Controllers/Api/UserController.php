@@ -1510,7 +1510,7 @@ public function ledger(Request $request)
         return ['error' => false, 'message' => 'Already updated'];
     }
 
-    $retailers = Store::select('id','unique_code','name','db_name','db_code')
+    $retailers = Store::select('id','unique_code','name')
                       ->with(['states:id,name','areas:id,name'])
                       ->get();
 
