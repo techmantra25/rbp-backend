@@ -17,6 +17,7 @@ use App\Models\Order;
 use App\Models\OrderQrcode;
 use App\Models\RetailerUserTxnHistory;
 use App\Models\RetailerWalletTxn;
+use App\Models\LedgerReport;
 use DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -1274,7 +1275,7 @@ public function wallet(Request $request)
 
 
 
-public function ledger(Request $request)
+/*public function ledger(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'retailer_uid' => ['nullable', 'array'], // accept array
@@ -1307,12 +1308,7 @@ public function ledger(Request $request)
         $retailers = Store::all();
     }
 
-    // Date loop
-    /*$period = new \DatePeriod(
-        new \DateTime($request->startDate),
-        new \DateInterval('P1D'),
-        (new \DateTime($request->endDate))->modify('+1 day') // include endDate
-    );*/
+    
     
     $period = new \DatePeriod(
         (new \DateTime($request->startDate))->modify('-1 day'), // subtract one day
@@ -1429,8 +1425,195 @@ public function ledger(Request $request)
         'message' => 'Transaction history fetched successfully (date wise)',
         'data'    => $arr,
     ]);
+}*/
+public function ledger(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'retailer_uid' => ['nullable', 'array'],
+        'retailer_uid.*' => ['string'],
+        'startDate'    => ['required', 'date'],
+        'endDate'      => ['required', 'date'],
+    ]);
+
+    if ($validator->fails()) {
+        return [
+            'error' => true,
+            'message' => $validator->errors()->first()
+        ];
+    }
+
+    $query = LedgerReport::query();
+
+    // Filter retailer(s)
+    if (!empty($request->retailer_uid)) {
+        $query->whereIn('retailer_id', $request->retailer_uid);
+    }
+
+    // Filter date range
+    $query->whereBetween('result_date', [
+        $request->startDate,
+        $request->endDate
+    ]);
+
+    $ledgerRows = $query->orderBy('result_date', 'asc')->get();
+
+    $arr = [];
+
+    foreach ($ledgerRows as $row) {
+        $arr[] = [
+            "Date" => $row->result_date,
+            "Retailer code" => $row->retailer_code,
+            "Retailer name" => $row->retailer_name,
+            "Retailer state" => $row->retailer_state,
+            "Retailer city" => $row->retailer_city,
+            "DB Name" => $row->db_name,
+            "DB Code" => $row->db_code,
+            "Opening balance" => $row->opening_balance,
+            "Opening Stcok Point Credit" => $row->opening_stock_credit,
+            "Sales Point Credit" => $row->sales_point_credit,
+            "Multiplier Point Credit" => $row->multiplier_point_credit,
+            "Sales Return Point Debit" => $row->sales_return_debit,
+            "Sales Return Multiplier Point Debit" => $row->sales_multiplier_return_debit,
+            "Gift Redemption Point Debit" => $row->gift_redemption_debit,
+            "Redemption Cancellation Point Credit" => $row->redemption_cancellation_credit,
+            "Manual Adjustment Point Credit" => $row->manual_adj_credit,
+            "Manual Adjustment Point Debit" => $row->manual_adj_debit,
+            "Closing balance" => $row->closing_balance,
+        ];
+    }
+
+    return [
+        'error' => false,
+        'message' =>  'Transaction history fetched successfully (date wise)',
+        'data' => $arr
+    ];
 }
 
+
+
+
+
+    public function ledgerCron()
+{
+    $lastProcessedDate = LedgerReport::max('result_date');
+
+    if (!$lastProcessedDate) {
+        $startDate = RetailerUserTxnHistory::min('created_at');
+        $startDate = date('Y-m-d', strtotime($startDate));
+    } else {
+        $startDate = date('Y-m-d', strtotime($lastProcessedDate . ' +1 day'));
+    }
+
+    $endDate = date('Y-m-d', strtotime('-1 day'));
+
+    if ($startDate > $endDate) {
+        return ['error' => false, 'message' => 'Already updated'];
+    }
+
+    $retailers = Store::select('id','unique_code','name','db_name','db_code')
+                      ->with(['states:id,name','areas:id,name'])
+                      ->get();
+
+    $period = new \DatePeriod(
+        new \DateTime($startDate),
+        new \DateInterval('P1D'),
+        (new \DateTime($endDate))->modify('+1 day')
+    );
+
+    foreach ($period as $dateObj) {
+
+        $date = $dateObj->format('Y-m-d');
+
+        foreach ($retailers as $user) {
+
+            // 🚀 SINGLE QUERY FOR ALL TRANSACTIONS
+            $transactions = RetailerUserTxnHistory::where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('user_id', $user->unique_code);
+                })
+                ->whereDate('created_at', $date)
+                ->with('orders')
+                ->get();
+
+            if ($transactions->isEmpty()) continue;
+
+            // 🚀 Opening balance
+            $openingBalance = DB::table('retailer_wallet_txns')
+                ->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('user_id', $user->unique_code);
+                })
+                ->where('created_at', '<', $date)
+                ->orderByDesc('id')
+                ->value('final_amount') ?? 0;
+
+            // Initialize values
+            $billamount = $multiplierbillamount = $manualadj = 0;
+            $salescancel = $redemcancel = $redemptionpoint = 0;
+            $salesmulticancel = $manualadjdebit = $openingStock = 0;
+
+            foreach ($transactions as $item) {
+
+                match (true) {
+                    $item->type == "Earn" && $item->amount_type == "SALES" => $billamount += $item->amount,
+                    $item->type == "Earn" && $item->amount_type == "Sales Multiplier" => $multiplierbillamount += $item->amount,
+                    $item->type == "manual-adjustment" && $item->status == "increment" => $manualadj += $item->amount,
+                    $item->type == "manual-adjustment" && $item->status == "decrement" => $manualadjdebit += $item->amount,
+                    $item->amount_type == "Sales Return" && $item->type == "Debit" => $salescancel += $item->amount,
+                    $item->amount_type == "Sales Multiplier" && $item->type == "Debit" => $salesmulticancel += $item->amount,
+                    $item->type == "Earn" && $item->amount_type == "Opening Stock" && $item->status == "increment" => $openingStock += $item->amount,
+                    default => null
+                };
+
+                if (!empty($item->orders)) {
+                    $redemptionpoint += $item->orders->final_amount;
+
+                    if ($item->orders->status == 5) {
+                        $redemcancel += $item->orders->final_amount;
+                    }
+                }
+            }
+
+            // 🚀 Closing balance
+            $closingBalance = DB::table('retailer_wallet_txns')
+                ->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('user_id', $user->unique_code);
+                })
+                ->whereDate('created_at', $date)
+                ->orderByDesc('id')
+                ->value('final_amount') ?? $openingBalance;
+
+            // 🚀 Save fast using bulk update
+            LedgerReport::updateOrCreate(
+                [
+                    'result_date'   => $date,
+                    'retailer_id'   => $user->unique_code,
+                ],
+                [
+                    'retailer_name'  => $user->name,
+                    'retailer_state' => $user->states->name ?? '',
+                    'retailer_city'  => $user->areas->name ?? '',
+                    'db_name'        => $user->db_name ?? '',
+                    'db_code'        => $user->db_code ?? '',
+                    'opening_balance'                      => $openingBalance,
+                    'opening_stock_point_credit'           => $openingStock,
+                    'sales_point_credit'                   => $billamount,
+                    'multiplier_point_credit'              => $multiplierbillamount,
+                    'sales_return_point_debit'             => $salescancel,
+                    'sales_return_multiplier_point_debit'  => $salesmulticancel,
+                    'gift_redemption_point_debit'          => $redemptionpoint,
+                    'redemption_cancellation_point_credit' => $redemcancel,
+                    'manual_adjustment_point_credit'       => $manualadj,
+                    'manual_adjustment_point_debit'        => $manualadjdebit,
+                    'closing_balance'                      => $closingBalance,
+                ]
+            );
+        }
+    }
+
+    return ['error' => false, 'message' => 'Ledger updated FAST'];
+}
 
 public function balance(Request $request)
 {

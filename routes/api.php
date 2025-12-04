@@ -430,6 +430,8 @@ Route::post('earn/points', [UserController::class, 'index']);
 Route::post('debit/points', [UserController::class, 'debit']);
 Route::post('retailer/ledger', [UserController::class, 'ledger']);
 
+Route::get('retailer/ledger/cron', [UserController::class, 'ledgerCron']);
+
 Route::get('retailer/list/save/cron', [UserController::class, 'retailerSave']);
 
 Route::get('state/list/save/cron', [UserController::class, 'stateSave']);
