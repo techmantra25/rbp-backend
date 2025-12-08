@@ -1426,7 +1426,7 @@ public function wallet(Request $request)
         'data'    => $arr,
     ]);
 }*/
-public function ledger(Request $request)
+public function ledger_08_12_2025(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'retailer_uid' => ['nullable', 'array'],
@@ -1490,6 +1490,195 @@ public function ledger(Request $request)
 }
 
 
+public function ledger(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'retailer_uid' => ['nullable', 'array'],
+        'retailer_uid.*' => ['string'],
+        'startDate' => ['required', 'date'],
+        'endDate' => ['required', 'date'],
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'error' => true,
+            'message' => $validator->errors()->first()
+        ]);
+    }
+
+    $startDate = Carbon::parse($request->startDate)->startOfDay();
+    $endDate   = Carbon::parse($request->endDate)->endOfDay();
+
+    //---------------------------------------------------------
+    // 1. LOAD RETAILERS ONLY ONCE
+    //---------------------------------------------------------
+    if (!empty($request->retailer_uid)) {
+        $retailers = Store::with(['states','areas'])
+            ->whereIn('unique_code', $request->retailer_uid)
+            ->get();
+    } else {
+        $retailers = Store::with(['states','areas'])->get();
+    }
+
+    if ($retailers->isEmpty()) {
+        return response()->json([
+            "error" => true,
+            "message" => "No valid retailers found",
+        ]);
+    }
+
+    //---------------------------------------------------------
+    // 2. BUILD USER LIST (id + unique_code)
+    //---------------------------------------------------------
+    $userIds = [];
+    foreach ($retailers as $r) {
+        $userIds[] = $r->id;
+        $userIds[] = $r->unique_code;
+    }
+
+    //---------------------------------------------------------
+    // 3. PRELOAD ALL RETAILER WALLET TXNS
+    //---------------------------------------------------------
+    $walletTxns = DB::table('retailer_wallet_txns')
+        ->whereIn('user_id', $userIds)
+        ->whereBetween('created_at', [
+            $startDate->copy()->subDay(),
+            $endDate->copy()->addDay()
+        ])
+        ->orderBy('id')
+        ->get()
+        ->groupBy('user_id');
+
+    //---------------------------------------------------------
+    // 4. PRELOAD ALL TRANSACTION HISTORY
+    //---------------------------------------------------------
+    $txnHistory = RetailerUserTxnHistory::with('orders')
+        ->whereIn('user_id', $userIds)
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->orderBy('created_at')
+        ->get()
+        ->groupBy(function ($item) {
+            return $item->user_id . '_' . $item->created_at->format('Y-m-d');
+        });
+
+    //---------------------------------------------------------
+    // 5. BUILD DATE RANGE (IN PERIOD VARIABLE)
+    //---------------------------------------------------------
+    $period = [];
+    $current = $startDate->copy();
+    while ($current <= $endDate) {
+        $period[] = $current->format('Y-m-d');
+        $current->addDay();
+    }
+
+    //---------------------------------------------------------
+    // 6. PROCESS ALL RETAILERS WITHOUT DB QUERIES IN LOOP
+    //---------------------------------------------------------
+    $output = [];
+
+    foreach ($retailers as $user) {
+
+        $idList = [$user->id, $user->unique_code];
+
+        $userWallet = collect();
+        foreach ($idList as $uid) {
+            if (isset($walletTxns[$uid])) {
+                $userWallet = $userWallet->merge($walletTxns[$uid]);
+            }
+        }
+
+        foreach ($period as $date) {
+
+            // Opening balance
+            $openingBalance = optional(
+                $userWallet->where('created_at', '<', $date)->sortByDesc('id')->first()
+            )->final_amount ?? 0;
+
+            // Closing balance
+            $closingBalance = optional(
+                $userWallet->whereBetween('created_at', [$date . ' 00:00:00', $date . ' 23:59:59'])
+                    ->sortByDesc('id')->first()
+            )->final_amount ?? $openingBalance;
+
+            //---------------------------------------------------------
+            // Get all transactions for this user for this date
+            //---------------------------------------------------------
+            $allTxns = collect();
+            foreach ($idList as $uid) {
+                $key = $uid . "_" . $date;
+                if (isset($txnHistory[$key])) {
+                    $allTxns = $allTxns->merge($txnHistory[$key]);
+                }
+            }
+
+            //---------------------------------------------------------
+            // Counters
+            //---------------------------------------------------------
+            $bill = $multiplier = $manualPlus = 0;
+            $salesCancel = $salesMultiCancel = 0;
+            $redeemCancel = $redeemPoint = 0;
+            $manualMinus = $openingStock = 0;
+
+            foreach ($allTxns as $t) {
+
+                if ($t->type === "Earn") {
+                    if ($t->amount_type === "SALES") $bill += $t->amount;
+                    if ($t->amount_type === "Sales Multiplier") $multiplier += $t->amount;
+                }
+
+                if ($t->type === "manual-adjustment") {
+                    if ($t->status === "increment") $manualPlus += $t->amount;
+                    if ($t->status === "decrement") $manualMinus += $t->amount;
+                }
+
+                if ($t->amount_type === "Sales Return" && $t->type === "Debit")
+                    $salesCancel += $t->amount;
+
+                if ($t->amount_type === "Sales Multiplier" && $t->type === "Debit")
+                    $salesMultiCancel += $t->amount;
+
+                if ($t->type === "Earn" && $t->amount_type === "Opening Stock")
+                    $openingStock += $t->amount;
+
+                if ($t->orders) {
+                    $redeemPoint += $t->orders->final_amount;
+                    if ($t->orders->status == 5)
+                        $redeemCancel += $t->orders->final_amount;
+                }
+            }
+
+            //---------------------------------------------------------
+            // FINAL ROW
+            //---------------------------------------------------------
+            $output[] = [
+                "Date" => $date,
+                "Retailer code" => $user->unique_code,
+                "Retailer name" => $user->name,
+                "Retailer state" => $user->states->name ?? '',
+                "Retailer city" => $user->areas->name ?? '',
+                "DB Name" => $user->db_name ?? '',
+                "DB Code" => $user->db_code ?? '',
+                "Opening balance" => $openingBalance,
+                "Opening Stcok Point Credit" => $openingStock,
+                "Sales Point Credit" => $bill,
+                "Multiplier Point Credit" => $multiplier,
+                "Sales Return Point Debit" => $salesCancel,
+                "Sales Return Multiplier Point Debit" => $salesMultiCancel,
+                "Gift Redemption Point Debit" => $redeemPoint,
+                "Redemption Cancellation Point Credit" => $redeemCancel,
+                "Manual Adjustment Point Credit" => $manualPlus,
+                "Manual Adjustment Point Debit" => $manualMinus,
+                "Closing balance" => $closingBalance,
+            ];
+        }
+    }
+
+    return response()->json([
+        "error" => false,
+        "message" => "Optimized Transaction history fetched successfully",
+        "data" => $output
+    ]);
+}
 
 
 
