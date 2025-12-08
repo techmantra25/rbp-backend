@@ -1712,6 +1712,9 @@ public function adjustment(Request $request,$id)
 									$walletTxn->created_at = date('Y-m-d H:i:s');
 									$walletTxn->updated_at = date('Y-m-d H:i:s');
 									$walletTxn->save();
+									
+									$order->wallet+= $request->amount;
+									$order->save();
        }
        
    
