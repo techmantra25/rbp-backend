@@ -2254,6 +2254,129 @@ public function adjustment(Request $request,$id)
      }
 
     
-    
+     public function checkfailedTransaction(Request $request)
+{
+    if (!empty($request->file)) {
+
+        $file = $request->file('file');
+        $filename = $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        $fileSize = $file->getSize();
+
+        $valid_extension = ["csv"];
+        $maxFileSize = 50097152;
+
+        if (!in_array(strtolower($extension), $valid_extension)) {
+            return back()->with('failure', 'Invalid File Extension. Only CSV allowed.');
+        }
+
+        if ($fileSize > $maxFileSize) {
+            return back()->with('failure', 'File too large. Max 50MB allowed.');
+        }
+
+        $location = 'public/uploads/csv';
+        $file->move($location, $filename);
+        $filepath = $location . "/" . $filename;
+
+        $file = fopen($filepath, "r");
+
+        $successCount = 0;
+        $failureCount = 0;
+        $failedRows = [];
+
+        $i = 0;
+        while (($filedata = fgetcsv($file, 10000, ",")) !== FALSE) {
+
+            if ($i == 0) { $i++; continue; } // Skip header
+
+            // CSV columns
+            $retailerId     = $filedata[1] ?? null;
+            $remarks = $filedata[4] ?? null;
+            
+
+            // Check user
+            $user = Store::where('unique_code', $retailerId)
+                         ->first();
+
+            if (!$user) {
+                $failureCount++;
+                $failedRows[] = [
+                    'unique_code' => $retailerId,
+                    'remarks' => $remarks,
+                     'reason' => 'Store Not exists'
+                ];
+                $i++;
+                continue;
+            }
+
+            $userId = $user->id;
+
+            // Already Opening Stock added?
+            $checkTran = RetailerUserTxnhistory::where(function ($q) use ($userId, $user) {
+                    $q->where('user_id', $userId)
+                      ->orWhere('user_id', $user->unique_code);
+                })
+                ->where('description', '=' ,$remarks)
+                ->first();
+
+            if (!$checkTran) {
+                $failureCount++;
+                $failedRows[] = [
+                    'unique_code' => $retailerId,
+                    'remarks' => $remarks,
+                    'reason' => 'Not exists'
+                ];
+                $i++;
+                continue;
+            }
+
+            /* SUCCESS PROCESS */
+
+            
+
+            
+
+          
+
+            $successCount++;
+            $i++;
+        }
+
+        fclose($file);
+
+        // CREATE FAILED CSV
+        if (count($failedRows) > 0) {
+            $failedFile = 'failed_rows_' . date('Y-m-d_His') . '.csv';
+            $failedPath = public_path('uploads/csv/' . $failedFile);
+            $fp = fopen($failedPath, 'w');
+
+            // Header
+            fputcsv($fp, ['Unique Code','Remarks',  'Reason']);
+
+            // Data
+            foreach ($failedRows as $row) {
+                fputcsv($fp, $row);
+            }
+
+            fclose($fp);
+
+            return response()->file($failedPath, [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=$failedFile",
+                "X-Success-Count" => $successCount,
+                "X-Failure-Count" => $failureCount
+            ])->deleteFileAfterSend(true);
+        }
+
+
+         return response()->json([
+            'successCount' => $successCount,
+            'failureCount' => $failureCount
+        ]);
+        //return back()->with('success', "Upload Completed: $successCount success, $failureCount failed.");
+    }
+
+    return back()->with('failure', 'No file found.');
+}
     
 }
