@@ -106,7 +106,9 @@
                                             <div class="search-filter-right-el">
                                                 <a href="#csvUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk opening point upload</a>
                                             </div>
-                                            
+                                            <div class="search-filter-right-el">
+                                                <a href="#storeTrancsvUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Store Transaction check</a>
+                                            </div>
                                             {{--<div class="search-filter-right-el">
                                                 <a href="#csvUploadRModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk stock data remove</a>
                                             </div>--}}
@@ -365,7 +367,27 @@
     </div>
 </div>
 
-
+<div class="modal fade" id="storeTrancsvUploadModal" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                Bulk Upload
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{{ route('admin.stores.transaction.check.list') }}" 
+                      enctype="multipart/form-data" id="storeTrancsvForm">
+                    @csrf
+                    <input type="file" name="file" class="form-control" accept=".csv">
+                    <br>
+                    <button type="button" class="btn btn-danger mt-3" id="storeTrancsvSubmitBtn">
+                        Import <i class="fas fa-upload"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="csvUploadRModal" data-backdrop="static">
     <div class="modal-dialog">
@@ -601,5 +623,55 @@ $(document).ready(function() {
     });
 });
 </script>
+<script>
+   $("#storeTrancsvSubmitBtn").click(function(e){
+    e.preventDefault();
 
+    let formData = new FormData(document.getElementById("storeTrancsvForm"));
+
+    $.ajax({
+        url: "{{ route('admin.stores.transaction.check.list') }}",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        xhrFields: {
+            responseType: 'blob' // important for CSV download
+        },
+        success: function (data, status, xhr) {
+
+            let contentType = xhr.getResponseHeader("Content-Type");
+        
+            // If FILE is coming
+            if (contentType.includes("text/csv")) {
+        
+                // ðŸ”¥ Get counts from headers
+                let successCount = xhr.getResponseHeader("X-Success-Count");
+                let failureCount = xhr.getResponseHeader("X-Failure-Count");
+        
+                // Download CSV
+                var blob = new Blob([data], { type: "text/csv" });
+                var link = document.createElement("a");
+                link.href = window.URL.createObjectURL(blob);
+                link.download = "failed_rows.csv";
+                link.click();
+        
+               // Swal.fire( "Upload Completed",);
+               toastFire('success', "Upload Completed");
+        
+                setTimeout(() => window.location.reload(), 2000);
+                return;
+            }
+
+    // âœ” JSON data (no failures)
+            //Swal.fire("Upload Completed!","Success: " + data.successCount + "<br>" + "Failed: " + data.failureCount, "success");
+        toastFire('success', "Upload Completed");
+            setTimeout(() => window.location.reload(), 2000);
+        },
+        error: function() {
+            toastFire('error', 'Failed to update');
+        }
+    });
+});
+</script>
 @endsection
