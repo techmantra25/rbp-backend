@@ -166,7 +166,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/stores/{id}/adjustment/save', [StoreController::class, 'adjustment'])->name('stores.adjustment.save');
         Route::post('/stores/bulk/stock/save', [StoreController::class, 'bulkUpload'])->name('stores.stock.save');
          Route::post('/stores/bulk/stock/remove', [StoreController::class, 'bulkUploadremove'])->name('stores.stock.remove');
-        
+         Route::post('/stores/transaction/check/list', [StoreController::class, 'checkfailedTransaction'])->name('stores.transaction.check.list');
         //states
         Route::resource('states', StateController::class);
         Route::get('/states/{id}/status', [StateController::class, 'status'])->name('states.status');
