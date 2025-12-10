@@ -1541,7 +1541,7 @@ public function ledger(Request $request)
     //---------------------------------------------------------
     $walletTxns = DB::table('retailer_wallet_txns')
         ->whereIn('user_id', $userIds)
-        ->whereBetween('created_at', [
+        ->whereBetween('entry_date', [
             $startDate->copy()->subDay(),
             $endDate->copy()->addDay()
         ])
@@ -1554,11 +1554,11 @@ public function ledger(Request $request)
     //---------------------------------------------------------
     $txnHistory = RetailerUserTxnHistory::with('orders')
         ->whereIn('user_id', $userIds)
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->orderBy('created_at')
+        ->whereBetween('entry_date', [$startDate, $endDate])
+        ->orderBy('entry_date')
         ->get()
         ->groupBy(function ($item) {
-            return $item->user_id . '_' . $item->created_at->format('Y-m-d');
+            return $item->user_id . '_' . $item->entry_date->format('Y-m-d');
         });
 
     //---------------------------------------------------------
@@ -1591,12 +1591,12 @@ public function ledger(Request $request)
 
             // Opening balance
             $openingBalance = optional(
-                $userWallet->where('created_at', '<', $date)->sortByDesc('id')->first()
+                $userWallet->where('entry_date', '<', $date)->sortByDesc('id')->first()
             )->final_amount ?? 0;
 
             // Closing balance
             $closingBalance = optional(
-                $userWallet->whereBetween('created_at', [$date . ' 00:00:00', $date . ' 23:59:59'])
+                $userWallet->whereBetween('entry_date', [$date . ' 00:00:00', $date . ' 23:59:59'])
                     ->sortByDesc('id')->first()
             )->final_amount ?? $openingBalance;
 
