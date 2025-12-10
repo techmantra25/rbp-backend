@@ -1558,7 +1558,7 @@ public function ledger(Request $request)
         ->orderBy('entry_date')
         ->get()
         ->groupBy(function ($item) {
-            return $item->user_id . '_' . $item->entry_date->format('Y-m-d');
+            return $item->user_id . '_' . $item->created_at->format('Y-m-d');
         });
 
     //---------------------------------------------------------
