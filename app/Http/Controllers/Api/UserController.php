@@ -1517,7 +1517,7 @@ public function ledger(Request $request)
             ->whereIn('unique_code', $request->retailer_uid)
             ->get();
     } else {
-        $retailers = Store::with(['states','areas'])->get();
+        $retailers = Store::with(['states','areas'])->where('status',1)->get();
     }
 
     if ($retailers->isEmpty()) {
