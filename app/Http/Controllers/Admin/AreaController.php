@@ -693,7 +693,7 @@ class AreaController extends Controller
                             $userId =$user->id;
                         
 						$user=Store::findOrFail($userId);
-						$user->status = 1;
+						$user->status = 0;
 						$user->save();
                         }						
                               
