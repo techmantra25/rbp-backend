@@ -1513,7 +1513,7 @@ public function ledger(Request $request)
     // 1. LOAD RETAILERS ONLY ONCE
     //---------------------------------------------------------
     if (!empty($request->retailer_uid)) {
-        $retailers = Store::with(['states','areas'])
+        $retailers = Store::with(['states','areas'])->where('status',1)
             ->whereIn('unique_code', $request->retailer_uid)
             ->get();
     } else {
