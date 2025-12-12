@@ -688,12 +688,12 @@ class AreaController extends Controller
                      foreach ($importData_arr as $importData) {
                         $count = $total = 0;
                         $stateData = '';
-                        $user=Store::where('contact',$importData[0])->first();
+                        $user=Store::where('unique_code',$importData[0])->first();
                         if(!empty($user)){
                             $userId =$user->id;
                         
 						$user=Store::findOrFail($userId);
-						$user->video_link = $importData[1];
+						$user->status = 1;
 						$user->save();
                         }						
                               
