@@ -693,7 +693,8 @@ class AreaController extends Controller
                             $userId =$user->id;
                         
 						$user=Store::findOrFail($userId);
-						$user->status = 0;
+                        $user->uid = $importData[1];
+						//$user->status = 1;
 						$user->save();
                         }						
                               
