@@ -109,6 +109,9 @@
                                             <div class="search-filter-right-el">
                                                 <a href="#storeTrancsvUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Store Transaction check</a>
                                             </div>
+                                                 <div class="search-filter-right-el">
+                                                    <a href="#namebulkTransferModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Store details Bulk update</a>
+                                               </div>
                                             {{--<div class="search-filter-right-el">
                                                 <a href="#csvUploadRModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk stock data remove</a>
                                             </div>--}}
@@ -439,7 +442,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{{ route('admin.name.csv.upload') }}" enctype="multipart/form-data" id="">@csrf
+                <form method="post" action="{{ route('admin.video.csv.upload') }}" enctype="multipart/form-data" id="">@csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
                     <a href="{{ asset('admin/name update_Sheet1.csv') }}">Download Sample CSV</a>
