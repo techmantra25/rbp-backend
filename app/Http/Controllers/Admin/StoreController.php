@@ -1935,7 +1935,8 @@ public function adjustment(Request $request,$id)
                     $beat  = Area::where('name', $outlet['beatId']['name'])->first();
 
                     DB::table('stores')->updateOrInsert(
-                        ['unique_code' => $outlet['outletUID']],
+                        ['unique_code' => $outlet['outletCode']],
+                        ['uid' => $outlet['outletUID']],
                         [
                             'api_id'     => $outlet['_id'] ?? '',
                             'name'       => $outlet['outletName'] ?? '',
