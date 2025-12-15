@@ -760,6 +760,7 @@ public function qrRedeemcsvExport(Request $request)
                 'stores.user_id',
                 'retailer_user_txn_histories.description',
                 'stores.unique_code',
+                  'stores.uid',
                 'stores.name',
                 'stores.contact',
                 'stores.email',
@@ -771,7 +772,12 @@ public function qrRedeemcsvExport(Request $request)
                 'retailer_user_txn_histories.amount',
                 'retailer_user_txn_histories.created_at'
             )
-            ->join('stores', 'stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+            //->join('stores', 'stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+              ->join('stores', function ($join) {
+                        $join->on('stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+                             ->orOn('stores.uid', '=', 'retailer_user_txn_histories.user_id')
+                             ->orOn('stores.id', '=', 'retailer_user_txn_histories.user_id');
+                    })
             ->whereBetween('retailer_user_txn_histories.created_at', [$from, $to]);
 
     // Apply keyword filter
@@ -780,7 +786,8 @@ public function qrRedeemcsvExport(Request $request)
         $query->where(function ($q) use ($keyword) {
             $q->where('stores.name', 'like', "%$keyword%")
               ->orWhere('stores.contact', 'like', "%$keyword%")
-              ->orWhere('stores.unique_code', 'like', "%$keyword%");
+              ->orWhere('stores.unique_code', 'like', "%$keyword%")
+                ->orWhere('stores.uid', 'like', "%$keyword%");
         });
     }
 
@@ -794,6 +801,7 @@ public function qrRedeemcsvExport(Request $request)
     // Write headers
     $headers = [
         'SR',
+        'STORE UID',
         'STORE UNIQUE CODE',
         'STORE NAME',
         'STORE MOBILE',
@@ -824,6 +832,7 @@ public function qrRedeemcsvExport(Request $request)
 
             $lineData = [
                 $count++,
+                $row->uid ?? 'NA',
                 $row->unique_code ?? 'NA',
                 $row->name ?? 'NA',
                 $row->contact ?? 'NA',
