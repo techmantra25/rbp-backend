@@ -80,6 +80,7 @@ class StoreController extends Controller
                 ->orWhere('stores.owner_fname', 'like', '%' . $request->keyword . '%')
                 ->orWhere('stores.contact', '=', $request->keyword)
                 ->orWhere('stores.unique_code', 'like', '%' . $request->keyword . '%')
+                ->orWhere('stores.uid', 'like', '%' . $request->keyword . '%')
                 ;
         });
 
@@ -728,7 +729,9 @@ class StoreController extends Controller
               ->orWhere('stores.business_name', 'like', "%$keyword%")
               ->orWhere('stores.owner_fname', 'like', "%$keyword%")
               ->orWhere('stores.contact', '=', $keyword)
-              ->orWhere('stores.pin', '=', $keyword);
+              ->orWhere('stores.pin', '=', $keyword)
+                 ->orWhere('stores.uid', '=', $keyword)
+                 ->orWhere('stores.unique_code', '=', $keyword);
         });
     }
 
@@ -2153,11 +2156,12 @@ public function adjustment(Request $request,$id)
             // CSV columns
             $mobile     = $filedata[0] ?? null;
             $uniqueCode = $filedata[2] ?? null;
-            $points     = $filedata[3] ?? 0;
-
+            $points     = $filedata[4] ?? 0;
+            $uid  = $filedata[3] ?? 0;
             // Check user
             $user = Store::where('contact', $mobile)
                          ->where('unique_code', $uniqueCode)
+                         ->where('uid', $uid)
                          ->first();
 
             if (!$user) {
@@ -2165,6 +2169,7 @@ public function adjustment(Request $request,$id)
                 $failedRows[] = [
                     'mobile' => $mobile,
                     'unique_code' => $uniqueCode,
+                     'uid' => $uid,
                     'reason' => 'User not found'
                 ];
                 $i++;
@@ -2176,7 +2181,8 @@ public function adjustment(Request $request,$id)
             // Already Opening Stock added?
             $checkTran = RetailerUserTxnhistory::where(function ($q) use ($userId, $user) {
                     $q->where('user_id', $userId)
-                      ->orWhere('user_id', $user->unique_code);
+                      ->orWhere('user_id', $user->unique_code)
+                        ->orWhere('user_id', $user->uid);
                 })
                 ->where('amount_type', 'Opening Stock')
                 ->first();
@@ -2429,11 +2435,12 @@ public function adjustment(Request $request,$id)
             }
 
             $userId = $user->id;
-
+            $UID = $user->uid;
             // Already Opening Stock added?
             $checkTran = RetailerUserTxnhistory::where(function ($q) use ($userId, $user) {
                     $q->where('user_id', $userId)
-                      ->orWhere('user_id', $user->unique_code);
+                      ->orWhere('user_id', $user->unique_code)
+                        ->orWhere('user_id', $user->uid);
                 })
                 ->where('description', '=' ,$remarks)
                 ->first();
@@ -2441,6 +2448,7 @@ public function adjustment(Request $request,$id)
             if (!$checkTran) {
                 $failureCount++;
                 $failedRows[] = [
+                    'uid' => $UID,
                     'unique_code' => $retailerId,
                     'remarks' => $remarks,
                     'reason' => 'Not exists'
@@ -2470,7 +2478,7 @@ public function adjustment(Request $request,$id)
             $fp = fopen($failedPath, 'w');
 
             // Header
-            fputcsv($fp, ['Unique Code','Remarks',  'Reason']);
+            fputcsv($fp, ['UID','Unique Code','Remarks',  'Reason']);
 
             // Data
             foreach ($failedRows as $row) {
