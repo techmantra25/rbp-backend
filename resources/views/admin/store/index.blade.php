@@ -193,6 +193,7 @@
                             <tr>
                                 <th>#SR</th>
                                 <!--<th class="text-center"><i class="fi fi-br-picture"></i></th>-->
+                                <th>UID</th> 
                                 <th>Uniquecode</th> 
                                 <th>Store</th>
                                 <th>Created by</th>
@@ -235,6 +236,7 @@
                                     
                                 <!--   @endif-->
                                 <!--</td>-->
+                                <td>{{ $item->uid }}</td>
                                 <td>{{ $item->unique_code }}</td>
                                 <td>
                                     {{ ucwords($item->name) }}
