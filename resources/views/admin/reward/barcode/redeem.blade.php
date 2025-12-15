@@ -58,8 +58,8 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                     <th>#SR</th> 
                     
                  
-    			
-    			
+    			    <th>Store UID</th>
+    			    <th>Store Unique_code</th>
                     <th>Store Name</th>
                     <th>Contact</th>
                     <th>Area/State</th>
@@ -91,7 +91,8 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
     					
     					
     					
-    				
+    				    <td>{{ $item->uid }}</td>
+                        <td>{{ $item->unique_code }}</td>
                         <td>
                             {{ ucwords($item->name)?? '' }}
                            
