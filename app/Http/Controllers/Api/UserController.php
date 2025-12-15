@@ -1592,7 +1592,7 @@ public function ledger(Request $request)
     //---------------------------------------------------------
     if (!empty($request->retailer_uid)) {
         $retailers = Store::with(['states','areas'])->where('status',1)
-            ->whereIn('unique_code', $request->retailer_uid)
+            ->whereIn('uid', $request->retailer_uid)
             ->get();
     } else {
         $retailers = Store::with(['states','areas'])->where('status',1)->get();
@@ -1612,6 +1612,7 @@ public function ledger(Request $request)
     foreach ($retailers as $r) {
         $userIds[] = $r->id;
         $userIds[] = $r->unique_code;
+        $userIds[] = $r->uid;
     }
 
     //---------------------------------------------------------
@@ -1656,7 +1657,7 @@ public function ledger(Request $request)
 
     foreach ($retailers as $user) {
 
-        $idList = [$user->id, $user->unique_code];
+        $idList = [$user->id, $user->unique_code,$user->uid];
 
         $userWallet = collect();
         foreach ($idList as $uid) {
@@ -1887,7 +1888,7 @@ public function balance(Request $request)
     // Fetch all active stores
     $wallets = Store::where('status', 1)
         
-        ->select('api_id', 'name', 'wallet') // Only needed columns
+        ->select('api_id', 'uid','name', 'wallet') // Only needed columns
         ->get();
 
     if ($wallets->isNotEmpty()) {
@@ -1896,6 +1897,7 @@ public function balance(Request $request)
         foreach ($wallets as $store) {
             $data[] = [
                 'retailer_id' => $store->api_id,
+                'retailer_uid' => $store->uid,
                 'retailer_name' => $store->name,
                 'wallet_balance' => $store->wallet ?? 0,
             ];
