@@ -467,6 +467,7 @@ public function qrRedeem(Request $request)
                     'stores.user_id',
                     'retailer_user_txn_histories.description',
                     'stores.unique_code',
+                    'stores.uid',
                     'stores.name',
                     'stores.contact',
                     'stores.email',
@@ -477,7 +478,11 @@ public function qrRedeem(Request $request)
                     'retailer_user_txn_histories.amount',
                     'retailer_user_txn_histories.created_at'
                 )
-                ->join('stores', 'stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+                ->join('stores', function ($join) {
+                        $join->on('stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+                             ->orOn('stores.uid', '=', 'retailer_user_txn_histories.user_id')
+                             ->orOn('stores.id', '=', 'retailer_user_txn_histories.user_id');
+                    })
                 ->whereBetween('retailer_user_txn_histories.created_at', [$from, $to]);
 
         // keyword search
@@ -496,6 +501,7 @@ public function qrRedeem(Request $request)
                   ->orWhere('stores.contact_person_phone','like','%'.$keyword.'%')
                   ->orWhere('stores.contact_person_whatsapp','like','%'.$keyword.'%')
                   ->orWhere('stores.unique_code','like','%'.$keyword.'%')
+                    ->orWhere('stores.uid','like','%'.$keyword.'%')
                   ->orWhere('stores.gst_no','like','%'.$keyword.'%');
             });
         }
@@ -522,6 +528,8 @@ public function qrRedeem(Request $request)
                         'retailer_user_txn_histories.barcode_id',
                         'stores.id as store_id',
                         'stores.user_id',
+                        'stores.unique_code',
+                        'stores.uid',
                         'stores.name',
                         'stores.contact',
                         'stores.email',
@@ -533,7 +541,12 @@ public function qrRedeem(Request $request)
                         'retailer_user_txn_histories.amount',
                         'retailer_user_txn_histories.created_at'
                   )
-                  ->join('stores', 'stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+                  //->join('stores', 'stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+                   ->join('stores', function ($join) {
+                        $join->on('stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+                             ->orOn('stores.uid', '=', 'retailer_user_txn_histories.user_id')
+                             ->orOn('stores.id', '=', 'retailer_user_txn_histories.user_id');
+                    })
                   
                   ->latest('retailer_user_txn_histories.id')
                   ->paginate(25);
