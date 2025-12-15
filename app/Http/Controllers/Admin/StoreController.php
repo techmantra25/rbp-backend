@@ -2451,7 +2451,7 @@ public function adjustment(Request $request,$id)
                 $failureCount++;
                 $failedRows[] = [
                     'uid' => $UID,
-                    'unique_code' => $retailerId,
+                    'unique_code' => $retailerCode,
                     'remarks' => $remarks,
                     'reason' => 'Not exists'
                 ];
