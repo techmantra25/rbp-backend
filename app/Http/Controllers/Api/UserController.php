@@ -534,12 +534,12 @@ public function ordersearch(Request $request)
             
             $userId =$request->outlet_id;
            
-							    $userExist=Store::where('unique_code',$userId)->first();
+							    $userExist=Store::where('uid',$userId)->first();
 								if(!$userExist){
 									return response()->json(['error'=>false, 'resp'=>'Outlet is invalid']);
 								}else{
 								  
-									$user=Store::where('unique_code',$userId)->first();
+									$user=Store::where('uid',$userId)->first();
 									$user->wallet += $request->amount;
 									$user->save();
 									
@@ -606,12 +606,12 @@ public function ordersearch(Request $request)
             
             $userId =$request->outlet_id;
            
-							    $userExist=Store::where('unique_code',$userId)->first();
+							    $userExist=Store::where('uid',$userId)->first();
 								if(!$userExist){
 									return response()->json(['error'=>false, 'resp'=>'Outlet is invalid']);
 								}else{
 								  
-									$user=Store::where('unique_code',$userId)->first();
+									$user=Store::where('uid',$userId)->first();
 									$user->wallet -= $request->amount;
 									$user->save();
 									
