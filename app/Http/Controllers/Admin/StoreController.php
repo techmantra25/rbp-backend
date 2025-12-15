@@ -1902,7 +1902,7 @@ public function adjustment(Request $request,$id)
     }
 
     // ---------------- Retailer Save ----------------
-    public function retailerSave()
+   /* public function retailerSave()
     {
         $page = 1;
         $limit = 10;
@@ -1996,7 +1996,103 @@ public function adjustment(Request $request,$id)
             'failedCount'  => $failedCount,
             'failedList'   => $failedList,
         ]);
-    }
+    }*/
+
+    public function retailerSave()
+{
+    set_time_limit(0);
+
+    $page = 1;
+    $limit = 50; // increase limit to reduce API calls
+
+    $successCount = 0;
+    $failedCount  = 0;
+    $failedList   = [];
+
+    do {
+        $response = Http::timeout(30)->get(
+            "https://api.mysalesdrive.in/api/v1/outletApproved/paginated-list",
+            [
+                'page'  => $page,
+                'limit' => $limit
+            ]
+        );
+
+        if (!$response->successful()) {
+            break;
+        }
+
+        $outlets = $response->json('data');
+        if (empty($outlets)) break;
+
+        foreach ($outlets as $outlet) {
+            try {
+
+                // ❌ remove extra exists() query
+                $user = User::where('api_id', data_get($outlet, 'employeeId._id'))->first();
+                $state = State::where('name', data_get($outlet, 'stateId.name'))->first();
+
+                // MULTIPLE BEATS
+                $areaIds = Area::whereIn(
+                    'name',
+                    collect($outlet['beatId'] ?? [])
+                        ->pluck('name')
+                        ->filter()
+                        ->toArray()
+                )->pluck('id')->toArray();
+
+                DB::table('stores')->updateOrInsert(
+                    ['unique_code' => $outlet['outletCode']],
+                    [
+                        'api_id'      => $outlet['_id'] ?? '',
+                        'uid'         => $outlet['outletUID'],
+                        'name'        => $outlet['outletName'] ?? '',
+                        'owner_fname' => $outlet['ownerName'] ?? '',
+                        'contact'     => $outlet['mobile1'] ?? '',
+                        'address'     => $outlet['address1'] ?? '',
+                        'user_id'     => $user->id ?? null,
+                        'city'        => $outlet['city'] ?? '',
+                        'state_id'    => $state->id ?? null,
+                        'area_id'     => implode(',', $areaIds),
+                        'pin'         => $outlet['pin'] ?? '',
+                        'district'    => $outlet['district'] ?? '',
+                        'gst_no'      => $outlet['gstin'] ?? '',
+                        'pan_no'      => $outlet['panNumber'] ?? '',
+                        'aadhar'      => $outlet['aadharNumber'] ?? '',
+                        'password'    => Hash::make(($outlet['mobile1'] ?? '0000') . '@2025'),
+                        'status'      => 1,
+                        'updated_at'  => now(),
+                        'created_at'  => now(),
+                    ]
+                );
+
+                $successCount++;
+
+            } catch (\Exception $e) {
+                $failedCount++;
+                $failedList[] = [
+                    'api_id' => $outlet['_id'] ?? '',
+                    'name'   => $outlet['outletName'] ?? '',
+                    'error'  => $e->getMessage()
+                ];
+            }
+        }
+
+        // 🚨 IMPORTANT: stop after limited pages to avoid timeout
+        if ($page >= 5) break;
+
+        $page++;
+
+    } while (true);
+
+    return response()->json([
+        'message'      => 'Partial sync completed (live-safe)',
+        'successCount' => $successCount,
+        'failedCount'  => $failedCount,
+        'failedList'   => $failedList
+    ]);
+}
+
 
     // ---------------- Download Failed ----------------
     public function downloadFailed()
