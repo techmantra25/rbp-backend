@@ -1932,13 +1932,34 @@ public function adjustment(Request $request,$id)
 
                     $user  = User::where('api_id', $outlet['employeeId']['_id'])->first();
                     $state = State::where('name', $outlet['stateId']['name'])->first();
-                    $beat  = Area::where('name', $outlet['beatId']['name'])->first();
+                    //$beat  = Area::where('name', $outlet['beatId']['name'])->first();
+                    // -------- HANDLE MULTIPLE BEATS ----------
+                        $areaIds = [];
+                    
+                        if (!empty($outlet['beatId']) && is_array($outlet['beatId'])) {
+                        
+                            $beatNames = collect($outlet['beatId'])
+                                            ->pluck('name')
+                                            ->filter()
+                                            ->toArray();
+                        
+                            if (!empty($beatNames)) {
+                                $areaIds = Area::whereIn('name', $beatNames)
+                                                ->pluck('id')
+                                                ->toArray();
+                            }
+                        }
+
+                        // Convert to comma-separated string
+                        $areaIdString = !empty($areaIds) ? implode(',', $areaIds) : null;
 
                     DB::table('stores')->updateOrInsert(
                         ['unique_code' => $outlet['outletCode']],
-                        ['uid' => $outlet['outletUID']],
+                       
                         [
+                            
                             'api_id'     => $outlet['_id'] ?? '',
+                            'uid'         => $outlet['outletUID'],
                             'name'       => $outlet['outletName'] ?? '',
                             'owner_fname'=> $outlet['ownerName'] ?? '',
                             'contact'    => $outlet['mobile1'] ?? '',
@@ -1946,7 +1967,7 @@ public function adjustment(Request $request,$id)
                             'user_id'    => $user->id ?? null,
                             'city'       => $outlet['city'] ?? '',
                             'state_id'   => $state->id ?? null,
-                            'area_id'    => $beat->id ?? null,
+                             'area_id'     => $areaIdString, 
                             'pin'        => $outlet['pin'] ?? '',
                             'district'   => $outlet['district'] ?? '',
                             'gst_no'     => $outlet['gstin'] ?? '',
