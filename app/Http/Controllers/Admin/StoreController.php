@@ -759,7 +759,7 @@ class StoreController extends Controller
 
         /* ---------- CSV HEADER ROW ---------- */
         fputcsv($file, [
-            'SR','UNIQUE CODE','STORE','FIRM','ADDRESS','TOWN/CITY','AREA','DISTRICT',
+            'SR','UID','UNIQUE CODE','STORE','FIRM','ADDRESS','TOWN/CITY','AREA','DISTRICT',
             'PINCODE','STATE','OWNER NAME','MOBILE','WHATSAPP','CONTACT PERSON',
             'CONTACT PERSON PHONE','OWNER DOB','OWNER ANNIVERSARY','EMAIL','GST',
             'PAN','VIDEO LINK','OPENING POINT','WALLET','CREATED BY','EMP CODE',
@@ -806,6 +806,7 @@ class StoreController extends Controller
 
                 fputcsv($file, [
                     $sr++,
+                    $row->uid,
                     $row->unique_code,
                     ucwords($row->name),
                     ucwords($row->business_name),
