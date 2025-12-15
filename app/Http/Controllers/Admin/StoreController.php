@@ -2415,18 +2415,20 @@ public function adjustment(Request $request,$id)
             if ($i == 0) { $i++; continue; } // Skip header
 
             // CSV columns
-            $retailerId     = $filedata[1] ?? null;
-            $remarks = $filedata[4] ?? null;
+            $retailerId     = $filedata[8] ?? null;
+            $retailerCode     = $filedata[9] ?? null;
+            $remarks = $filedata[13] ?? null;
             
 
             // Check user
-            $user = Store::where('unique_code', $retailerId)
+            $user = Store::where('uid', $retailerId)
                          ->first();
 
             if (!$user) {
                 $failureCount++;
                 $failedRows[] = [
-                    'unique_code' => $retailerId,
+                    'unique_code' => $retailerCode,
+                     'uid' => $retailerId,
                     'remarks' => $remarks,
                      'reason' => 'Store Not exists'
                 ];
