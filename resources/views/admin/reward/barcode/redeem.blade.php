@@ -59,7 +59,7 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                     
                  
     			    <th>Store UID</th>
-    			    <th>Store Unique_code</th>
+    			    <th>Store Unique Code</th>
                     <th>Store Name</th>
                     <th>Contact</th>
                     <th>Area/State</th>
