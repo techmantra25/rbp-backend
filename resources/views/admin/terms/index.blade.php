@@ -23,8 +23,10 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <form method="POST" action="{{ route('admin.reward.retailer.terms.update',$data->id) }}" enctype="multipart/form-data">
-                    @csrf
+                       @if(isset($data))
+                        <form method="POST" action="{{ route('admin.reward.retailer.terms.update', $data->id) }}" enctype="multipart/form-data">
+                            @csrf
+                        @endif
                         <h4 class="page__subtitle">Edit</h4>
                         <div class="form-group mb-3">
                             <label class="label-control">Terms and Condition <span class="text-danger">*</span> </label>
