@@ -352,6 +352,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/export/csv', [RetailerOrderController::class,'exportCSV'])->name('export.csv');
 			Route::get('/{id}/approval/{status}', [RetailerOrderController::class,'approval'])->name('approval');
 			Route::get('/{id}/status/{status}', [RetailerOrderController::class,'status'])->name('status');
+            Route::get('/{id}/delete', [RetailerOrderController::class,'delete'])->name('delete');
 			Route::post('/{id}/dispatch/{status}', [RetailerOrderController::class,'dispatchOrder'])->name('dispatch.status');
 			Route::post('/{id}/delivery/{status}', [RetailerOrderController::class,'deliverOrder'])->name('delivery.status');
 			Route::get('/{id}/product/status/{status}', [RetailerOrderController::class,'orderProductStatus'])->name('product.status');
