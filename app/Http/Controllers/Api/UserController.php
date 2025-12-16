@@ -1699,7 +1699,7 @@ public function ledger(Request $request)
             $manualMinus = $openingStock = 0;
 
             foreach ($allTxns as $t) {
-                dd($t);
+               
                 if ($t->type === "Earn") {
                     if ($t->amount_type === "SALES") $bill += $t->amount;
                     if ($t->amount_type === "Sales Multiplier") $multiplier += $t->amount;
