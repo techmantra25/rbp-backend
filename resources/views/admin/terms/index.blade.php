@@ -23,7 +23,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <form method="POST" action="{{ route('admin.reward.retailer.terms.update',['id'=>$data->id]) }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('admin.reward.retailer.terms.update',$data->id) }}" enctype="multipart/form-data">
                     @csrf
                         <h4 class="page__subtitle">Edit</h4>
                         <div class="form-group mb-3">
