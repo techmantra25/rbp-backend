@@ -30,7 +30,7 @@
                         <h4 class="page__subtitle">Edit</h4>
                         <div class="form-group mb-3">
                             <label class="label-control">Terms and Condition <span class="text-danger">*</span> </label>
-                            <textarea type="text" id="terms" name="terms" placeholder="" class="form-control">{{ $data->terms }}</textarea>
+                            <textarea id="terms" name="terms" class="form-control">{{ old('terms', $data->terms ?? '') }}</textarea>
                             @error('terms') <p class="small text-danger">{{ $message }}</p> @enderror
                         </div>
                         
