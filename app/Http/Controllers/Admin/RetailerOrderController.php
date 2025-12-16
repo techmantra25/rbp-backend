@@ -126,6 +126,18 @@ class RetailerOrderController extends Controller
         $data = RetailerOrder::where('id',$id)->with('user')->first();
         return view('admin.reward.order.detail', compact('data'));
     }
+
+
+
+    public function delete(Request $request, $id)
+    {
+        DB::transaction(function () use ($id) {
+            RewardOrderProduct::where('order_id', $id)->delete();
+            RetailerOrder::where('id', $id)->delete();
+        });
+    
+        return redirect()->back()->with('success', 'Order deleted');
+    }
     
     public function convertHtmlToPdf($url, $pdfPath)
 {
