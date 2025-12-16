@@ -1699,7 +1699,7 @@ public function ledger(Request $request)
             $manualMinus = $openingStock = 0;
 
             foreach ($allTxns as $t) {
-
+                dd($t);
                 if ($t->type === "Earn") {
                     if ($t->amount_type === "SALES") $bill += $t->amount;
                     if ($t->amount_type === "Sales Multiplier") $multiplier += $t->amount;
@@ -1709,10 +1709,10 @@ public function ledger(Request $request)
                     if ($t->status === "increment") $manualPlus += $t->amount;
                     if ($t->status === "decrement") $manualMinus += $t->amount;
                 }
-
+                
                 if ($t->amount_type === "Sales Return" && $t->type === "Debit")
                     $salesCancel += $t->amount;
-                    dd($salesCancel);
+                    
                 if ($t->amount_type === "Sales Multiplier" && $t->type === "Debit")
                     $salesMultiCancel += $t->amount;
 
