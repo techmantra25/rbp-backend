@@ -2379,7 +2379,7 @@ public function adjustment(Request $request,$id)
      }
 
     
-     public function checkfailedTransaction(Request $request)
+    /* public function checkfailedTransaction(Request $request)
 {
     if (!empty($request->file)) {
 
@@ -2459,13 +2459,161 @@ public function adjustment(Request $request,$id)
                 continue;
             }
 
-            /* SUCCESS PROCESS */
+           
 
             
 
             
 
           
+
+            $successCount++;
+            $i++;
+        }
+
+        fclose($file);
+
+        // CREATE FAILED CSV
+        if (count($failedRows) > 0) {
+            $failedFile = 'failed_rows_' . date('Y-m-d_His') . '.csv';
+            $failedPath = public_path('uploads/csv/' . $failedFile);
+            $fp = fopen($failedPath, 'w');
+
+            // Header
+            fputcsv($fp, ['UID','Unique Code','Remarks',  'Reason']);
+
+            // Data
+            foreach ($failedRows as $row) {
+                fputcsv($fp, $row);
+            }
+
+            fclose($fp);
+
+            return response()->file($failedPath, [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=$failedFile",
+                "X-Success-Count" => $successCount,
+                "X-Failure-Count" => $failureCount
+            ])->deleteFileAfterSend(true);
+        }
+
+
+         return response()->json([
+            'successCount' => $successCount,
+            'failureCount' => $failureCount
+        ]);
+        //return back()->with('success', "Upload Completed: $successCount success, $failureCount failed.");
+    }
+
+    return back()->with('failure', 'No file found.');
+}*/
+
+
+
+
+
+
+public function checkfailedTransaction(Request $request)
+{
+    if (!empty($request->file)) {
+
+        $file = $request->file('file');
+        $filename = $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        $fileSize = $file->getSize();
+
+        $valid_extension = ["csv"];
+        $maxFileSize = 50097152;
+
+        if (!in_array(strtolower($extension), $valid_extension)) {
+            return back()->with('failure', 'Invalid File Extension. Only CSV allowed.');
+        }
+
+        if ($fileSize > $maxFileSize) {
+            return back()->with('failure', 'File too large. Max 50MB allowed.');
+        }
+
+        $location = 'public/uploads/csv';
+        $file->move($location, $filename);
+        $filepath = $location . "/" . $filename;
+
+        $file = fopen($filepath, "r");
+
+        $successCount = 0;
+        $failureCount = 0;
+        $failedRows = [];
+
+        $i = 0;
+        while (($filedata = fgetcsv($file, 10000, ",")) !== FALSE) {
+
+            if ($i == 0) { $i++; continue; } // Skip header
+
+            // CSV columns
+            $retailerId     = $filedata[8] ?? null;
+            $retailerCode     = $filedata[9] ?? null;
+            $remarks = $filedata[13] ?? null;
+            $distributorTransactionType=$filedata[2] ?? null;
+
+            // Check user
+            $user = Store::where('uid', $retailerId)
+                         ->first();
+
+            if (!$user) {
+                $failureCount++;
+                $failedRows[] = [
+                    'unique_code' => $retailerCode,
+                     'uid' => $retailerId,
+                    'remarks' => $remarks,
+                     'reason' => 'Store Not exists'
+                ];
+                $i++;
+                continue;
+            }
+
+            $userId = $user->id;
+            $UID = $user->uid;
+            // Already Opening Stock added?
+            $checkTran = RetailerUserTxnhistory::where(function ($q) use ($userId, $user) {
+                    $q->where('user_id', $userId)
+                      ->orWhere('user_id', $user->unique_code)
+                        ->orWhere('user_id', $user->uid);
+                })
+                ->where('description', '=' ,$remarks)
+                ->first();
+
+            if ($checkTran) {
+
+                if($distributorTransactionType == 'debit')
+                {   
+                    if($checkTran->type!='Earn')
+                    {
+                        $failureCount++;
+                        $failedRows[] = [
+                            'uid' => $UID,
+                            'unique_code' => $retailerCode,
+                            'remarks' => $remarks,
+                            'reason' => 'Wrong Transaction'
+                        ];
+                        $i++;
+                        continue;
+                    }
+                }else{
+                    if($checkTran->type!='Debit')
+                    {
+                        $failureCount++;
+                        $failedRows[] = [
+                            'uid' => $UID,
+                            'unique_code' => $retailerCode,
+                            'remarks' => $remarks,
+                            'reason' => 'Wrong Transaction'
+                        ];
+                        $i++;
+                        continue;
+                    }
+                }
+            }
+
+           
 
             $successCount++;
             $i++;
