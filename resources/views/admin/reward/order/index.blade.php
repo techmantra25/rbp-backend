@@ -258,7 +258,7 @@
                                         <p class="small text-dark mb-1">#{{$item->order_no}}</p>
         								<div class="row__action">
                                                     <a href="{{ route('admin.reward.retailer.order.view', $item->id) }}">View</a>
-                                                    
+                                                    <a href="{{ route('admin.reward.retailer.order.delete', $item->id) }}">Delete</a>
                                                    
                                         </div>
                                     </td>
