@@ -1712,7 +1712,7 @@ public function ledger(Request $request)
 
                 if ($t->amount_type === "Sales Return" && $t->type === "Debit")
                     $salesCancel += $t->amount;
-
+                    dd($salesCancel);
                 if ($t->amount_type === "Sales Multiplier" && $t->type === "Debit")
                     $salesMultiCancel += $t->amount;
 
