@@ -476,6 +476,7 @@ public function qrRedeem(Request $request)
                     'stores.city',
                     'stores.state_id',
                     'retailer_user_txn_histories.amount',
+                    'retailer_user_txn_histories.type', 
                     'retailer_user_txn_histories.created_at'
                 )
                 ->join('stores', function ($join) {
@@ -539,6 +540,7 @@ public function qrRedeem(Request $request)
                         'stores.state_id',
                         'stores.pin',
                         'retailer_user_txn_histories.amount',
+                        'retailer_user_txn_histories.type', 
                         'retailer_user_txn_histories.created_at'
                   )
                   //->join('stores', 'stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
