@@ -700,7 +700,7 @@ class StoreController extends Controller
 
     $query = Store::select('stores.*')
         ->with(['states', 'areas'])
-        ->where('stores.user_id', '!=', '')->orderby('stores.id','desc');
+        ->orderby('stores.id','desc');
 
     if ($from && $to) {
         $query->whereBetween('stores.created_at', [$from, $to]);
