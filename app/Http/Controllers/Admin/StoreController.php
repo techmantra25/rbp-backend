@@ -774,7 +774,7 @@ class StoreController extends Controller
         /* -------------------------------------------
          * PROCESS IN CHUNKS (1000 RECORDS AT ONCE)
          * ------------------------------------------- */
-        $query->chunkById(1000, function ($chunkUsers) use ($file, &$sr) {
+        $query->chunk(1000, function ($chunkUsers) use ($file, &$sr) {
 
             /* -------------------------------------------
              * PRELOAD TRANSACTION HISTORY (NO LOOP QUERIES)
