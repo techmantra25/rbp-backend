@@ -700,7 +700,7 @@ class StoreController extends Controller
 
     $query = Store::select('stores.*')
         ->with(['states', 'areas'])
-        ->where('stores.user_id', '!=', '')->orderby('id','desc');
+        ->where('stores.user_id', '!=', '')->orderby('stores.id','desc');
 
     if ($from && $to) {
         $query->whereBetween('stores.created_at', [$from, $to]);
@@ -774,7 +774,7 @@ class StoreController extends Controller
         /* -------------------------------------------
          * PROCESS IN CHUNKS (1000 RECORDS AT ONCE)
          * ------------------------------------------- */
-        $query->chunk(1000, function ($chunkUsers) use ($file, &$sr) {
+        $query->chunkById(1000, function ($chunkUsers) use ($file, &$sr) {
 
             /* -------------------------------------------
              * PRELOAD TRANSACTION HISTORY (NO LOOP QUERIES)
