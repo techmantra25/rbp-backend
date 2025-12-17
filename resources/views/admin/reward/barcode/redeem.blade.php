@@ -67,6 +67,7 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
     				<th>Date</th>
     				<th>Points</th>
     				<th>Remarks</th>
+                    <th>Type</th>
                 </tr>
             </thead>
             <tbody>
@@ -113,6 +114,9 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                         </td> 
                          <td>
                             {{ $item->description }}
+                         </td> 
+                        <td>
+                            {{ $item->amount_type }}( {{ $item->type }})
                          </td> 
                     </tr>
                 @empty
