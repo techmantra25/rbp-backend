@@ -2379,7 +2379,7 @@ public function adjustment(Request $request,$id)
      }
 
     
-    /* public function checkfailedTransaction(Request $request)
+     public function checkfailedTransaction(Request $request)
 {
     if (!empty($request->file)) {
 
@@ -2506,14 +2506,14 @@ public function adjustment(Request $request,$id)
     }
 
     return back()->with('failure', 'No file found.');
-}*/
+}
 
 
 
 
 
 
-public function checkfailedTransaction(Request $request)
+public function checkmissingfailedTransaction(Request $request)
 {
     if (!empty($request->file)) {
 
