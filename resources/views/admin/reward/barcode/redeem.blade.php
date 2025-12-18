@@ -43,6 +43,9 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                                 <!--<div class="search-filter-right-el">-->
                                 <!--                    <a href="#reedemDelete" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Remove test redeem history</a>-->
                                 <!--               </div>-->
+                                 <div class="search-filter-right-el">
+                                    <a href="#csvUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Bulk data upload</a>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -150,6 +153,28 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
                     <a href="{{ asset('admin/reedem.csv') }}">Download Sample CSV</a>
+                    <br>
+                    <button type="submit" class="btn btn-danger mt-3" id="csvImportBtn">Import <i class="fas fa-upload"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="csvUploadModal" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                Bulk Upload
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{{ route('admin.transaction.save') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                    <input type="file" name="file" class="form-control" accept=".csv">
+                    <br>
+                    <a href="{{ asset('admin/transaction.csv') }}">Download Sample CSV</a>
                     <br>
                     <button type="submit" class="btn btn-danger mt-3" id="csvImportBtn">Import <i class="fas fa-upload"></i></button>
                 </form>
