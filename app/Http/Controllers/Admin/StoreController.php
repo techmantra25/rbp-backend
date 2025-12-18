@@ -2729,7 +2729,7 @@ public function checkmissingfailedTransaction(Request $request)
                                             ->first();
 
             $walletTxn = new RetailerWalletTxn();
-            $walletTxn->user_id = $userId;
+            $walletTxn->user_id = $user->uid;
             $walletTxn->amount = $points;
             $walletTxn->type = 1;
             $walletTxn->final_amount = $lastWallet ? $lastWallet->final_amount + $points : $points;
@@ -2738,7 +2738,7 @@ public function checkmissingfailedTransaction(Request $request)
             $walletTxn->save();
 
             $history = new RetailerUserTxnHistory();
-            $history->user_id = $userId;
+            $history->user_id = $user->uid;
             $history->amount = $points;
             $history->type = 'Earn';
             $history->title = "$points points earn";
