@@ -539,9 +539,7 @@ public function ordersearch(Request $request)
 									return response()->json(['error'=>false, 'resp'=>'Outlet is invalid']);
 								}else{
 								  
-									$user=Store::where('uid',$userId)->first();
-									$user->wallet += $request->amount;
-									$user->save();
+									
 									
 									$userAmount=RetailerWalletTxn::where('user_id',$userId)->orderby('id','desc')->first();
 									$walletTxn=new RetailerWalletTxn();
@@ -575,6 +573,11 @@ public function ordersearch(Request $request)
 									$userwalletTxn->created_at = date('Y-m-d H:i:s');
 									$userwalletTxn->updated_at = date('Y-m-d H:i:s');
 									$userwalletTxn->save();
+
+
+                                    $user=Store::where('uid',$userId)->first();
+									$user->wallet += $request->amount;
+									$user->save();
 									
 								}
 						    
@@ -611,9 +614,7 @@ public function ordersearch(Request $request)
 									return response()->json(['error'=>false, 'resp'=>'Outlet is invalid']);
 								}else{
 								  
-									$user=Store::where('uid',$userId)->first();
-									$user->wallet -= $request->amount;
-									$user->save();
+									
 									
 									$userAmount=RetailerWalletTxn::where('user_id',$userId)->orderby('id','desc')->first();
 									$walletTxn=new RetailerWalletTxn();
@@ -647,6 +648,11 @@ public function ordersearch(Request $request)
 									$userwalletTxn->created_at = date('Y-m-d H:i:s');
 									$userwalletTxn->updated_at = date('Y-m-d H:i:s');
 									$userwalletTxn->save();
+
+
+                                    $user=Store::where('uid',$userId)->first();
+									$user->wallet -= $request->amount;
+									$user->save();
 									
 								}
 						    
