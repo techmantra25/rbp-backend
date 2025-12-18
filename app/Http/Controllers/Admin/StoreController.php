@@ -2655,5 +2655,143 @@ public function checkmissingfailedTransaction(Request $request)
 
     return back()->with('failure', 'No file found.');
 }
+
+
+
+
+
+
+
+    public function bulktransactionUpload(Request $request)
+{
+    if (!empty($request->file)) {
+
+        $file = $request->file('file');
+        $filename = $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        $fileSize = $file->getSize();
+
+        $valid_extension = ["csv"];
+        $maxFileSize = 50097152;
+
+        if (!in_array(strtolower($extension), $valid_extension)) {
+            return back()->with('failure', 'Invalid File Extension. Only CSV allowed.');
+        }
+
+        if ($fileSize > $maxFileSize) {
+            return back()->with('failure', 'File too large. Max 50MB allowed.');
+        }
+
+        $location = 'public/uploads/csv';
+        $file->move($location, $filename);
+        $filepath = $location . "/" . $filename;
+
+        $file = fopen($filepath, "r");
+
+        $successCount = 0;
+        $failureCount = 0;
+        $failedRows = [];
+
+        $i = 0;
+        while (($filedata = fgetcsv($file, 10000, ",")) !== FALSE) {
+
+            if ($i == 0) { $i++; continue; } // Skip header
+
+            // CSV columns
+            $remarks     = $filedata[3] ?? null;
+            $uniqueCode = $filedata[0] ?? null;
+            $points     = $filedata[2] ?? 0;
+            $uid  = $filedata[1] ?? 0;
+            $entry=$filedata[4];
+            // Check user
+            $user = Store::where('unique_code', $uniqueCode)
+                         ->where('uid', $uid)
+                         ->first();
+
+            if (!$user) {
+                $failureCount++;
+                $failedRows[] = [
+                    'unique_code' => $uniqueCode,
+                     'uid' => $uid,
+                    'reason' => 'User not found'
+                ];
+                $i++;
+                continue;
+            }
+
+            $userId = $user->id;
+
+           
+            
+
+            $lastWallet = RetailerWalletTxn::where('user_id', $userId)
+                                            ->orderBy('id', 'DESC')
+                                            ->first();
+
+            $walletTxn = new RetailerWalletTxn();
+            $walletTxn->user_id = $userId;
+            $walletTxn->amount = $points;
+            $walletTxn->type = 1;
+            $walletTxn->final_amount = $lastWallet ? $lastWallet->final_amount + $points : $points;
+            $walletTxn->entry_date = $entry;
+            $walletTxn->created_at = $entry.'16:57:16';
+            $walletTxn->save();
+
+            $history = new RetailerUserTxnHistory();
+            $history->user_id = $userId;
+            $history->amount = $points;
+            $history->type = 'Earn';
+            $history->title = "$points points earn";
+            $history->description = $remarks;
+            $history->amount_type = 'SALES';
+            $history->status = 'increment';
+            $history->entry_date = $entry;
+            $history->created_at = $entry.'16:57:16';
+            $history->save();
+
+            /* SUCCESS PROCESS */
+
+            $user->wallet += $points;
+            $user->save();
+            $successCount++;
+            $i++;
+        }
+
+        fclose($file);
+
+        // CREATE FAILED CSV
+        if (count($failedRows) > 0) {
+            $failedFile = 'failed_rows_' . date('Y-m-d_His') . '.csv';
+            $failedPath = public_path('uploads/csv/' . $failedFile);
+            $fp = fopen($failedPath, 'w');
+
+            // Header
+            fputcsv($fp, ['UID', 'Unique Code', 'Reason']);
+
+            // Data
+            foreach ($failedRows as $row) {
+                fputcsv($fp, $row);
+            }
+
+            fclose($fp);
+
+            return response()->file($failedPath, [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=$failedFile",
+                "X-Success-Count" => $successCount,
+                "X-Failure-Count" => $failureCount
+            ])->deleteFileAfterSend(true);
+        }
+
+
+         return response()->json([
+            'successCount' => $successCount,
+            'failureCount' => $failureCount
+        ]);
+        //return back()->with('success', "Upload Completed: $successCount success, $failureCount failed.");
+    }
+
+    return back()->with('failure', 'No file found.');
+}
     
 }
