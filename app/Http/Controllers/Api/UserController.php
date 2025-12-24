@@ -2030,5 +2030,66 @@ public function transactionRemove(Request $request)
         'message' => 'Wallet updated successfully for all stores'
     ]);
 }
+
+
+
+    public function storeclosingbalanceUpdate(Request $request)
+    
+    {
+ini_set('memory_limit', '-1');
+    ini_set('max_execution_time', 0);
+
+    // Process stores in chunks (FAST & SAFE)
+    Store::select('id', 'uid', 'unique_code')
+        ->chunk(500, function ($stores) {
+
+            foreach ($stores as $store) {
+
+                // All possible identifiers
+                $identifiers = array_filter([
+                    (string) $store->id,
+                    (string) $store->uid,
+                    (string) $store->unique_code,
+                ]);
+
+                // Get all wallet transactions for this retailer
+                $transactions = RetailerWalletTxn::whereIn('user_id', $identifiers)
+                    ->orderBy('id') // IMPORTANT: sequence matters
+                    ->get();
+
+                if ($transactions->isEmpty()) {
+                    continue;
+                }
+
+                $runningBalance = 0;
+
+                foreach ($transactions as $txn) {
+
+                    if ($txn->status === 'increment') {
+                        $runningBalance += $txn->amount;
+                    } elseif ($txn->status === 'decrement') {
+                        $runningBalance -= $txn->amount;
+                    }
+
+                    // Prevent negative balance
+                    $runningBalance = max($runningBalance, 0);
+
+                    // Update closing balance
+                    $txn->final_amount = $runningBalance;
+                    $txn->save();
+                }
+
+                // Update store wallet with last balance
+                $store->wallet = $runningBalance;
+                $store->save();
+            }
+        });
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Retailer wallet closing balances updated successfully'
+    ]);
+        
+    }
     
 }
