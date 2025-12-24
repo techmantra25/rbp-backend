@@ -2220,8 +2220,8 @@ public function adjustment(Request $request,$id)
             $history->user_id =  $uid;
             $history->amount = $points;
             $history->type = 'Earn';
-            $history->title = "$points points earn for opening stock";
-            $history->description = "$points points earn for opening stock";
+            $history->title = $points." points earn for opening stock";
+            $history->description = $points." points earn for opening stock";
             $history->amount_type = 'Opening Stock';
             $history->status = 'increment';
             $history->entry_date = now();
