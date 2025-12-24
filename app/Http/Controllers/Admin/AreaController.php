@@ -690,9 +690,10 @@ public function videoCSVUpload(Request $request)
         }
 
         // Find store
-        $store = Store::where('uid', $uid)->first();
+        $store = Store::where('unique_code', $uniqueCode)->first();
 
         if ($store) {
+            $store->uid = $uid;
             $store->status = 1;
             $store->save();
             $successCount++;
