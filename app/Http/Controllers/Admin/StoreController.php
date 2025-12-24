@@ -824,7 +824,7 @@ class StoreController extends Controller
                 ])->first(fn($key) => isset($transactions[(string)$key]));
 
                     $txn = $txn ? $transactions[(string)$txn][0] : null;
-                dd($txn);
+                
                 $ase = $aseUsers[$row->user_id] ?? null;
 
                 $date = date('j F, Y', strtotime($row->created_at));
