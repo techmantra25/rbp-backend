@@ -815,7 +815,15 @@ class StoreController extends Controller
              * ------------------------------------------- */
             foreach ($chunkUsers as $row) {
 
-                $txn = $transactions[$row->id] ?? null;
+                //$txn = $transactions[$row->id] ?? null;
+
+                $txn = collect([
+                    $row->id,
+                    $row->unique_code,
+                    $row->uid
+                ])->first(fn($key) => isset($transactions[(string)$key]));
+
+                    $txn = $txn ? $transactions[(string)$txn][0] : null;
                 $ase = $aseUsers[$row->user_id] ?? null;
 
                 $date = date('j F, Y', strtotime($row->created_at));
