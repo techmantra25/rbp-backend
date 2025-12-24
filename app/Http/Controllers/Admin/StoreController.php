@@ -2767,7 +2767,7 @@ public function checkmissingfailedTransaction(Request $request)
             $history->type = 'Earn';
             $history->title = "$points points earn";
             $history->description = $remarks;
-            $history->amount_type = 'SALES';
+            $history->amount_type = 'Sales Return';
             $history->status = 'increment';
             $history->entry_date = $entry;
             $history->created_at = $entry.'16:57:16';
