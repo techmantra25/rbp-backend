@@ -782,15 +782,21 @@ class StoreController extends Controller
             //$txnUserIds = $chunkUsers->pluck('id')
                 //->merge($chunkUsers->pluck('unique_code'))->merge($chunkUsers->pluck('uid'));
 
-            $txnUserIds = $chunkUsers->pluck('id')
+            $numericIds = $chunkUsers->pluck('id')
                 ->merge($chunkUsers->pluck('unique_code'))
-                ->merge($chunkUsers->pluck('uid'))
-                ->filter()        // remove null / empty values
-                ->unique()        // remove duplicates
-                ->values()        // reset keys
-                ->toArray(); 
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
 
-            $transactions = RetailerUserTxnhistory::whereIn('user_id', $txnUserIds)
+            $stringUids = $chunkUsers->pluck('uid')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+
+            $transactions = RetailerUserTxnhistory::whereIn('user_id', $numericIds)
+                      ->orWhereIn('user_id', $stringUids)
                 ->where('amount_type', 'Opening Stock')
                 ->get()
                 ->keyBy('user_id');
