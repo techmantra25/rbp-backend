@@ -2156,6 +2156,7 @@ public function adjustment(Request $request,$id)
             // CSV columns
             $mobile     = $filedata[0] ?? null;
             $uniqueCode = $filedata[2] ?? null;
+            
             $points     = $filedata[4] ?? 0;
             $uid  = $filedata[3] ?? 0;
             // Check user
@@ -2208,7 +2209,7 @@ public function adjustment(Request $request,$id)
                                             ->first();
 
             $walletTxn = new RetailerWalletTxn();
-            $walletTxn->user_id = $userId;
+            $walletTxn->user_id =  $uid;
             $walletTxn->amount = $points;
             $walletTxn->type = 1;
             $walletTxn->final_amount = $lastWallet ? $lastWallet->final_amount + $points : $points;
@@ -2216,7 +2217,7 @@ public function adjustment(Request $request,$id)
             $walletTxn->save();
 
             $history = new RetailerUserTxnHistory();
-            $history->user_id = $userId;
+            $history->user_id =  $uid;
             $history->amount = $points;
             $history->type = 'Earn';
             $history->title = "$points points earn for opening stock";
