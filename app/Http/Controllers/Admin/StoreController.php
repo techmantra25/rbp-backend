@@ -2723,9 +2723,9 @@ public function checkmissingfailedTransaction(Request $request)
 
             // CSV columns
             $remarks     = $filedata[3] ?? null;
-            $uniqueCode = $filedata[0] ?? null;
+            $uniqueCode = $filedata[1] ?? null;
             $points     = $filedata[2] ?? 0;
-            $uid  = $filedata[1] ?? 0;
+            $uid  = $filedata[0] ?? 0;
             $entry=$filedata[4];
             // Check user
             $user = Store::where('unique_code', $uniqueCode)
@@ -2748,7 +2748,7 @@ public function checkmissingfailedTransaction(Request $request)
            
             
 
-            $lastWallet = RetailerWalletTxn::where('user_id', $userId)
+            $lastWallet = RetailerWalletTxn::where('user_id', $uid)->orWhere('user_id', $userId)->orWhere('user_id', $uniqueCode)
                                             ->orderBy('id', 'DESC')
                                             ->first();
 
