@@ -817,13 +817,13 @@ class StoreController extends Controller
 
                 //$txn = $transactions[$row->id] ?? null;
 
-                $txn = collect([
-                    $row->id,
-                    $row->unique_code,
-                    $row->uid
-                ])->first(fn($key) => isset($transactions[(string)$key]));
-
-                    $txn = $txn ? $transactions[(string)$txn][0] : null;
+                $txnKey = collect([
+                    (string) $row->id,
+                    (string) $row->unique_code,
+                    (string) $row->uid
+                ])->first(fn($key) => isset($transactions[$key]));
+                
+                $txn = $txnKey ? $transactions[$txnKey] : null;
                 
                 $ase = $aseUsers[$row->user_id] ?? null;
 
