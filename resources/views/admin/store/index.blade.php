@@ -363,6 +363,8 @@
                     @csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
+                    <a href="{{ asset('admin/stock.csv') }}">Download Sample CSV</a>
+                    <br>
                     <button type="button" class="btn btn-danger mt-3" id="csvSubmitBtn">
                         Import <i class="fas fa-upload"></i>
                     </button>
