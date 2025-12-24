@@ -1986,7 +1986,49 @@ public function transactionRemove(Request $request)
         ]);
      }
 
-    
-    
+   public function storewalletUpdate(Request $request)
+{
+    ini_set('memory_limit', '-1');
+    set_time_limit(0);
+
+    // 🔹 Aggregate transactions by user_id
+    $txnSums = RetailerUserTxnhistory::select(
+            'user_id',
+            DB::raw("SUM(CASE WHEN status = 'increment' THEN amount ELSE 0 END) as credit"),
+            DB::raw("SUM(CASE WHEN status = 'decrement' THEN amount ELSE 0 END) as debit")
+        )
+        ->groupBy('user_id')
+        ->get()
+        ->keyBy('user_id'); // VERY IMPORTANT
+
+    // 🔹 Process stores in chunks
+    Store::chunk(1000, function ($stores) use ($txnSums) {
+
+        foreach ($stores as $store) {
+
+            $wallet = 0;
+
+            foreach ([
+                (string) $store->id,
+                (string) $store->uid,
+                (string) $store->unique_code
+            ] as $key) {
+
+                if (isset($txnSums[$key])) {
+                    $wallet += $txnSums[$key]->credit;
+                    $wallet -= $txnSums[$key]->debit;
+                }
+            }
+
+            $store->wallet = max($wallet, 0);
+            $store->save();
+        }
+    });
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Wallet updated successfully for all stores'
+    ]);
+}
     
 }
