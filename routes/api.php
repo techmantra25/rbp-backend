@@ -447,3 +447,6 @@ Route::get('retailer/transaction/remove', [UserController::class, 'transactionRe
 
  Route::get('stores/bulk/stock/remove/cron', [UserController::class, 'bulkUploadremovecron'])->name('stores.stock.remove.cron');
 
+
+Route::get('stores/wallet/update', [UserController::class, 'storewalletUpdate'])->name('stores.wallet.update');
+
