@@ -681,8 +681,8 @@ public function videoCSVUpload(Request $request)
             continue;
         }
 
-        $uniqueCode = trim($data[0] ?? '');
-        $uid        = trim($data[1] ?? '');
+        $uniqueCode = trim($data[1] ?? '');
+        $uid        = trim($data[0] ?? '');
 
         if ($uniqueCode == '') {
             $row++;
@@ -690,10 +690,10 @@ public function videoCSVUpload(Request $request)
         }
 
         // Find store
-        $store = Store::where('unique_code', $uniqueCode)->first();
+        $store = Store::where('uid', $uid)->first();
 
         if ($store) {
-            $store->uid = $uid;
+            $store->status = 1;
             $store->save();
             $successCount++;
         }
