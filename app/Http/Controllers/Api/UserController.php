@@ -1738,6 +1738,7 @@ public function ledger(Request $request)
             $output[] = [
                 "Date" => $date,
                 "Retailer code" => $user->unique_code,
+                "Retailer id" => $user->uid,
                 "Retailer name" => $user->name,
                 "Retailer state" => $user->states->name ?? '',
                 "Retailer city" => $user->areas->name ?? '',
