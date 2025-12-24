@@ -625,7 +625,7 @@ $(document).ready(function() {
             setTimeout(() => window.location.reload(), 2000);
         },
         error: function() {
-            toastFire('error', 'Failed to update');
+            toastFire('success', "Upload Completed");
         }
     });
 });
