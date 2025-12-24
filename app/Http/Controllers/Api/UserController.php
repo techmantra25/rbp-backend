@@ -2065,9 +2065,9 @@ ini_set('memory_limit', '-1');
 
                 foreach ($transactions as $txn) {
 
-                    if ($txn->status === 'increment') {
+                    if ($txn->type === 1) {
                         $runningBalance += $txn->amount;
-                    } elseif ($txn->status === 'decrement') {
+                    } elseif ($txn->type === 2) {
                         $runningBalance -= $txn->amount;
                     }
 
@@ -2079,9 +2079,7 @@ ini_set('memory_limit', '-1');
                     $txn->save();
                 }
 
-                // Update store wallet with last balance
-                $store->wallet = $runningBalance;
-                $store->save();
+                
             }
         });
 
