@@ -799,7 +799,7 @@ class StoreController extends Controller
                       ->orWhereIn('user_id', $stringUids)
                 ->where('amount_type', 'Opening Stock')
                 ->get()
-                ->keyBy('user_id');
+                 ->groupBy('user_id');
 
             /* -------------------------------------------
              * PRELOAD USER (ASE / CREATOR) DETAILS
