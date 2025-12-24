@@ -450,3 +450,4 @@ Route::get('retailer/transaction/remove', [UserController::class, 'transactionRe
 
 Route::get('stores/wallet/update', [UserController::class, 'storewalletUpdate'])->name('stores.wallet.update');
 
+Route::get('stores/closing/balance/update', [UserController::class, 'storeclosingbalanceUpdate'])->name('stores.closing.balance.update');
