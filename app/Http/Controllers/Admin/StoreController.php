@@ -823,7 +823,7 @@ class StoreController extends Controller
                     (string) $row->uid
                 ])->first(fn($key) => isset($transactions[$key]));
                 
-                $txn = $txnKey ? $transactions[$txnKey] : null;
+                $txn = $txnKey ? $transactions[$txnKey]->first() : null;
                 
                 $ase = $aseUsers[$row->user_id] ?? null;
 
