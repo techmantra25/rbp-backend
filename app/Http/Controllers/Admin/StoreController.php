@@ -780,7 +780,7 @@ class StoreController extends Controller
              * PRELOAD TRANSACTION HISTORY (NO LOOP QUERIES)
              * ------------------------------------------- */
             $txnUserIds = $chunkUsers->pluck('id')
-                ->merge($chunkUsers->pluck('unique_code'));
+                ->merge($chunkUsers->pluck('unique_code'))->merge($chunkUsers->pluck('uid'));
 
             $transactions = RetailerUserTxnhistory::whereIn('user_id', $txnUserIds)
                 ->where('amount_type', 'Opening Stock')
