@@ -795,11 +795,17 @@ class StoreController extends Controller
                 ->values()
                 ->toArray();
 
-            $transactions = RetailerUserTxnhistory::whereIn('user_id', $numericIds)
-                      ->orWhereIn('user_id', $stringUids)
-                ->where('amount_type', 'Opening Stock')
-                ->get()
-                 ->groupBy('user_id');
+           $transactions = RetailerUserTxnhistory::where(function($q) use ($numericIds, $stringUids) {
+                $q->whereIn('user_id', $numericIds)
+                  ->orWhereIn('user_id', $stringUids);
+            })
+            ->where('amount_type', 'Opening Stock')
+            ->get()
+            // keyBy is better if you only expect one record per user
+            // We cast to string to ensure the lookup works regardless of type
+            ->keyBy(function ($item) {
+                return (string) $item->user_id;
+            });
 
             /* -------------------------------------------
              * PRELOAD USER (ASE / CREATOR) DETAILS
@@ -817,13 +823,19 @@ class StoreController extends Controller
 
                 //$txn = $transactions[$row->id] ?? null;
 
-                $txnKey = collect([
-                    (string) $row->id,
-                    (string) $row->unique_code,
-                    (string) $row->uid
-                ])->first(fn($key) => isset($transactions[$key]));
+                $txn = null;
+
+                // Check which identifier exists as a key in our preloaded transactions
+                if (isset($transactions[(string)$row->id])) {
+                    $txn = $transactions[(string)$row->id];
+                } elseif (isset($transactions[(string)$row->unique_code])) {
+                    $txn = $transactions[(string)$row->unique_code];
+                } elseif (isset($transactions[(string)$row->uid])) {
+                    $txn = $transactions[(string)$row->uid];
+                }
+            
                 
-                $txn = $txnKey ? $transactions[$txnKey]->first() : null;
+                
                 
                 $ase = $aseUsers[$row->user_id] ?? null;
 
