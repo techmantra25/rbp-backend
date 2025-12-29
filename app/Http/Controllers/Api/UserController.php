@@ -1986,12 +1986,12 @@ public function transactionRemove(Request $request)
         ]);
      }
 
-   public function storewalletUpdate(Request $request)
+public function storewalletUpdate(Request $request)
 {
-    ini_set('memory_limit', '-1');
+    ini_set('memory_limit', '512M'); // Avoid '-1' if possible for stability
     set_time_limit(0);
 
-    // 🔹 Aggregate transactions by user_id
+    // 1. Aggregate totals
     $txnSums = RetailerUserTxnhistory::select(
             'user_id',
             DB::raw("SUM(CASE WHEN status = 'increment' THEN amount ELSE 0 END) as credit"),
@@ -1999,35 +1999,42 @@ public function transactionRemove(Request $request)
         )
         ->groupBy('user_id')
         ->get()
-        ->keyBy('user_id'); // VERY IMPORTANT
+        ->keyBy('user_id');
 
-    // 🔹 Process stores in chunks
-    Store::chunk(1000, function ($stores) use ($txnSums) {
+    // 2. Use a transaction for data integrity
+    DB::transaction(function () use ($txnSums) {
+        Store::chunk(1000, function ($stores) use ($txnSums) {
+            foreach ($stores as $store) {
+                $totalCredit = 0;
+                $totalDebit = 0;
 
-        foreach ($stores as $store) {
+                // Checking all possible mapping keys
+                $possibleKeys = array_unique([
+                    (string) $store->id, 
+                    (string) $store->uid, 
+                    (string) $store->unique_code
+                ]);
 
-            $wallet = 0;
+                foreach ($possibleKeys as $key) {
+                    if (isset($txnSums[$key])) {
+                        $totalCredit += $txnSums[$key]->credit;
+                        $totalDebit += $txnSums[$key]->debit;
+                    }
+                }
 
-            foreach ([
-                (string) $store->id,
-                (string) $store->uid,
-                (string) $store->unique_code
-            ] as $key) {
+                $newWalletBalance = max($totalCredit - $totalDebit, 0);
 
-                if (isset($txnSums[$key])) {
-                    $wallet += $txnSums[$key]->credit;
-                    $wallet -= $txnSums[$key]->debit;
+                // Only save if the balance has actually changed (saves DB resources)
+                if ($store->wallet != $newWalletBalance) {
+                    $store->update(['wallet' => $newWalletBalance]);
                 }
             }
-
-            $store->wallet = max($wallet, 0);
-            $store->save();
-        }
+        });
     });
 
     return response()->json([
         'status' => true,
-        'message' => 'Wallet updated successfully for all stores'
+        'message' => 'Wallet update completed.'
     ]);
 }
 
