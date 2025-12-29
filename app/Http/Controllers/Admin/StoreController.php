@@ -2617,12 +2617,25 @@ public function checkmissingfailedTransaction(Request $request)
                 ->where('description', '=' ,$remarks)
                 ->first();
 
-            if ($checkTran) {
+            if (!$checkTran) {
 
-                if($distributorTransactionType == 'debit')
-                {   
-                    if($checkTran->type!='Earn')
-                    {
+               // if($distributorTransactionType == 'debit')
+                //{   
+                  //  if($checkTran->type!='Earn')
+                   // {
+                    //    $failureCount++;
+                    //    $failedRows[] = [
+                     //       'uid' => $UID,
+                      //      'unique_code' => $retailerCode,
+                         //   'remarks' => $remarks,
+                          //  'reason' => 'Wrong Transaction'
+                      //  ];
+                      //  $i++;
+                      //  continue;
+                   // }
+               // }else{
+                 //   if($checkTran->type!='Debit')
+                   // {
                         $failureCount++;
                         $failedRows[] = [
                             'uid' => $UID,
@@ -2632,21 +2645,8 @@ public function checkmissingfailedTransaction(Request $request)
                         ];
                         $i++;
                         continue;
-                    }
-                }else{
-                    if($checkTran->type!='Debit')
-                    {
-                        $failureCount++;
-                        $failedRows[] = [
-                            'uid' => $UID,
-                            'unique_code' => $retailerCode,
-                            'remarks' => $remarks,
-                            'reason' => 'Wrong Transaction'
-                        ];
-                        $i++;
-                        continue;
-                    }
-                }
+                   // }
+               // }
             }
 
            
