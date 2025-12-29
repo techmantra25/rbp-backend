@@ -2079,7 +2079,7 @@ ini_set('memory_limit', '-1');
                     }
 
                     // Prevent negative balance
-                    $runningBalance = max($runningBalance, 0);
+                    //$runningBalance = $runningBalance;
 
                     // Update closing balance
                     $txn->final_amount = $runningBalance;
