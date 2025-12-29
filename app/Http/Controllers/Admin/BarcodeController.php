@@ -452,7 +452,7 @@ class BarcodeController extends Controller
 // 	}
 
 
-public function qrRedeem(Request $request)
+/*public function qrRedeem(Request $request)
 {
     // check if filters applied
     if ($request->filled(['date_from', 'date_to']) || $request->distributor || $request->ase || $request->keyword) {
@@ -556,6 +556,65 @@ public function qrRedeem(Request $request)
     }
 
     return view('admin.reward.barcode.redeem', compact('data','request'));
+}*/
+
+
+    public function qrRedeem(Request $request)
+{
+    // Start the query builder
+    $query = RetailerUserTxnHistory::select(
+            'retailer_user_txn_histories.user_id as txn_user_id',
+            'retailer_user_txn_histories.description',
+            'retailer_user_txn_histories.amount',
+            'retailer_user_txn_histories.type', 
+            'retailer_user_txn_histories.created_at',
+            'stores.id as store_id',
+            'stores.name',
+            'stores.unique_code',
+            'stores.uid',
+            'stores.contact',
+            'stores.area_id',
+            'stores.city'
+        )
+        ->join('stores', function ($join) {
+            // Optimization: Ensure these 3 columns in 'stores' are INDEXED in your DB
+            $join->on('stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+                 ->orOn('stores.uid', '=', 'retailer_user_txn_histories.user_id')
+                 ->orOn('stores.id', '=', 'retailer_user_txn_histories.user_id');
+        });
+
+    // Apply Date Filters
+    if ($request->filled('date_from') || $request->filled('date_to')) {
+        $from = $request->date_from ?? date('Y-m-01');
+        $to = $request->date_to ? date('Y-m-d', strtotime($request->date_to . ' +1 day')) : date('Y-m-d H:i:s');
+        $query->whereBetween('retailer_user_txn_histories.created_at', [$from, $to]);
+    }
+
+    // Keyword search (Optimized: only search the most relevant columns)
+    if ($request->filled('keyword')) {
+        $keyword = $request->keyword;
+        $query->where(function($q) use ($keyword) {
+            $q->where('stores.name', 'like', $keyword.'%') // Prefix search is faster than %keyword%
+              ->orWhere('stores.unique_code', $keyword)    // Exact match is much faster
+              ->orWhere('stores.contact', 'like', $keyword.'%');
+        });
+    }
+
+    // Distributor / ASE filters
+    if ($request->distributor) {
+        $query->where('stores.distributor_id', $request->distributor);
+    }
+    if ($request->ase) {
+        $query->where('stores.ase_id', $request->ase);
+    }
+
+    // Execute with pagination
+    $data = $query->where('stores.user_id', '!=', '')
+                  ->latest('retailer_user_txn_histories.id')
+                  ->paginate(25)
+                  ->withQueryString(); // Keeps filters in pagination links
+
+    return view('admin.reward.barcode.redeem', compact('data', 'request'));
 }
 
 	
