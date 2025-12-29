@@ -2068,7 +2068,7 @@ ini_set('memory_limit', '-1');
                     continue;
                 }
 
-                $runningBalance ='';
+                $runningBalance =0;
 
                 foreach ($transactions as $txn) {
 
