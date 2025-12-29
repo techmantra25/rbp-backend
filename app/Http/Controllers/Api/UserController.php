@@ -2000,7 +2000,7 @@ public function storewalletUpdate(Request $request)
         ->groupBy('user_id')
         ->get()
         ->keyBy('user_id');
-     dd($txnSums);
+     dd($txnSums["RMS-0183"]);
     // 2. Use a transaction for data integrity
     DB::transaction(function () use ($txnSums) {
         Store::chunk(1000, function ($stores) use ($txnSums) {
