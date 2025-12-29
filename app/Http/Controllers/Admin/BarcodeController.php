@@ -613,7 +613,7 @@ class BarcodeController extends Controller
                   ->latest('retailer_user_txn_histories.id')
                   ->paginate(25)
                   ->withQueryString(); // Keeps filters in pagination links
-
+   dd($data);
     return view('admin.reward.barcode.redeem', compact('data', 'request'));
 }
 
