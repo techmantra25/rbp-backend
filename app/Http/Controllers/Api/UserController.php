@@ -2025,9 +2025,9 @@ public function storewalletUpdate(Request $request)
                 $newWalletBalance = max($totalCredit - $totalDebit, 0);
 
                 // Only save if the balance has actually changed (saves DB resources)
-                if ($store->wallet != $newWalletBalance) {
+                //if ($store->wallet != $newWalletBalance) {
                     $store->update(['wallet' => $newWalletBalance]);
-                }
+               // }
             }
         });
     });
