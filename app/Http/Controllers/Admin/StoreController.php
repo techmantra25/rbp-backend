@@ -2617,7 +2617,7 @@ public function checkmissingfailedTransaction(Request $request)
                 ->where('description', '=' ,$remarks)
                 ->first();
 
-            if (!$checkTran) {
+            if (empty($checkTran)) {
 
                // if($distributorTransactionType == 'debit')
                 //{   
