@@ -2549,7 +2549,7 @@ public function adjustment(Request $request,$id)
 
 
 
-public function checkmissingfailedTransaction(Request $request)
+/*public function checkmissingfailedTransaction(Request $request)
 {
     if (!empty($request->file)) {
 
@@ -2690,6 +2690,102 @@ public function checkmissingfailedTransaction(Request $request)
     }
 
     return back()->with('failure', 'No file found.');
+}*/
+
+
+    public function checkmissingfailedTransaction(Request $request)
+{
+    if (!$request->hasFile('file')) {
+        return back()->with('failure', 'No file found.');
+    }
+
+    $file = $request->file('file');
+    // Basic validation
+    if ($file->getClientOriginalExtension() !== 'csv') {
+        return back()->with('failure', 'Invalid File Extension. Only CSV allowed.');
+    }
+
+    $filepath = $file->getRealPath();
+    $fileHandle = fopen($filepath, "r");
+
+    $successCount = 0;
+    $missingCount = 0;
+    $missingRows = [];
+    $header = fgetcsv($fileHandle); // Skip header
+
+    // 1. Process CSV into an array to avoid constant File I/O
+    // 2. We will use a more efficient way to check existence
+    while (($filedata = fgetcsv($fileHandle, 10000, ",")) !== FALSE) {
+        $retailerId   = $filedata[8] ?? null;   // UID
+        $retailerCode = $filedata[9] ?? null;   // Unique Code
+        $remarks      = $filedata[13] ?? null;  // Description match
+
+        if (!$retailerId) continue;
+
+        // Find the Store
+        $store = Store::where('uid', $retailerId)->first();
+
+        if (!$store) {
+            $missingRows[] = [
+                'uid' => $retailerId,
+                'unique_code' => $retailerCode,
+                'remarks' => $remarks,
+                'reason' => 'Store does not exist'
+            ];
+            $missingCount++;
+            continue;
+        }
+
+        // Check if transaction is MISSING
+        // We look for a record that matches ANY of the three possible user identifiers
+        $exists = RetailerUserTxnhistory::where(function ($q) use ($store) {
+                $q->where('user_id', $store->id)
+                  ->orWhere('user_id', $store->unique_code)
+                  ->orWhere('user_id', $store->uid);
+            })
+            ->where('description', $remarks)
+            ->exists(); // 'exists()' is much faster than 'first()'
+
+        if (!$exists) {
+            // This is your MISSING data
+            $missingRows[] = [
+                'uid' => $store->uid,
+                'unique_code' => $store->unique_code,
+                'remarks' => $remarks,
+                'reason' => 'Transaction Missing in Database'
+            ];
+            $missingCount++;
+        } else {
+            $successCount++;
+        }
+    }
+    fclose($fileHandle);
+
+    // RETURN CSV OF MISSING DATA
+    if (count($missingRows) > 0) {
+        $fileName = 'missing_transactions_' . time() . '.csv';
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use($missingRows) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['UID', 'Unique Code', 'Remarks', 'Reason']);
+
+            foreach ($missingRows as $row) {
+                fputcsv($file, [$row['uid'], $row['unique_code'], $row['remarks'], $row['reason']]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    return back()->with('success', "All transactions found! Success: $successCount");
 }
 
 
