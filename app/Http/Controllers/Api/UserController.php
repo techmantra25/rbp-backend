@@ -2096,5 +2096,26 @@ ini_set('memory_limit', '-1');
     ]);
         
     }
+
+
+
+
+
+    public function duplicateCheck(Request $request)
+    
+    {
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', 0);
+
+
+
+        $duplicates = DB::table('retailer_user_txn_histories')
+            ->select('user_id', 'description', DB::raw('COUNT(*) as occurrences'))
+            ->groupBy('user_id', 'description')
+            ->having('occurrences', '>', 1)
+            ->get();
+
+        dd($duplicates);
+    }
     
 }
