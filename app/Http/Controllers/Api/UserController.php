@@ -2133,7 +2133,7 @@ ini_set('memory_limit', '-1');
             foreach ($duplicates as $item) {
                 // Map Type: Earn = 1, Debit = 2
                 $mappedType = (strtolower($item->type) == 'Earn') ? 1 : 2;
-
+                dd($mappedType);
                 // 2. Find matching records in the Wallet Table
                 // We order by DESC so we remove the newest wallet entries first
                 $walletEntry = DB::table('retailer_wallet_txns')
@@ -2142,7 +2142,7 @@ ini_set('memory_limit', '-1');
                     ->where('type', $mappedType)
                     ->orderBy('id', 'desc') 
                     ->first();
-                dd($walletEntry);
+                
                 if ($walletEntry) {
                     // Delete from Wallet Table
                     DB::table('retailer_wallet_txns')->where('id', $walletEntry->id)->delete();
