@@ -694,7 +694,7 @@ public function videoCSVUpload(Request $request)
 
         if ($store) {
             $store->uid = $uid;
-            $store->status = 1;
+            $store->status = 0;
             $store->save();
             $successCount++;
         }
