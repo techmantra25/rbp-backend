@@ -1768,7 +1768,7 @@ public function ledger(Request $request)
 
 
 
-    public function ledgerCron()
+   /* public function ledgerCron()
 {
     $lastProcessedDate = LedgerReport::max('result_date');
 
@@ -1888,7 +1888,7 @@ public function ledger(Request $request)
     }
 
     return ['error' => false, 'message' => 'Ledger updated FAST'];
-}
+}*/
 
 public function balance(Request $request)
 {
