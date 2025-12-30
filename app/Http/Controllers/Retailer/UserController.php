@@ -461,7 +461,7 @@ class UserController extends Controller
             
                 Store::where('contact', $mobile)->update(['login_otp' => 1234]);
 			}else{
-              $userCheck = Store::where('contact', $mobile)->with('states','areas')->first();
+              $userCheck = Store::where('contact', $mobile)->where('status',1)->with('states','areas')->first();
             
               Store::where('contact', $mobile)->update(['login_otp' => $login_otp]);
 			}
