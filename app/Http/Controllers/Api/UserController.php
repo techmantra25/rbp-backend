@@ -2112,7 +2112,7 @@ ini_set('memory_limit', '-1');
         ->groupBy('user_id', 'description')
         ->having('occurrences', '>', 1)
         ->get();
-    
+    dd($duplicateGroups);
     $historyRemoved = 0;
     $walletRemoved = 0;
 
