@@ -457,7 +457,7 @@ class UserController extends Controller
             $mobile = $request->contact;
 			
 			if($mobile== 1234567899){
-			    $userCheck = Store::where('contact', $mobile)->with('states','areas')->first();
+			    $userCheck = Store::where('contact', $mobile)->where('status',1)->with('states','areas')->first();
             
                 Store::where('contact', $mobile)->update(['login_otp' => 1234]);
 			}else{
