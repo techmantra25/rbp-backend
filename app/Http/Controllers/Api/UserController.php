@@ -2125,11 +2125,11 @@ ini_set('memory_limit', '-1');
                 ->where('description', $group->description)
                 ->orderBy('id', 'asc') 
                 ->get();
-             dd($historyRecords);
+             
             // We keep the first one ($historyRecords[0]), loop through the rest (duplicates)
             $keepId = $historyRecords->first()->id;
             $duplicates = $historyRecords->slice(1);
-
+            dd($duplicates);
             foreach ($duplicates as $item) {
                 // Map Type: Earn = 1, Debit = 2
                 $mappedType = (strtolower($item->type) == 'Earn') ? 1 : 2;
