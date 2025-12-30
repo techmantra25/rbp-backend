@@ -2129,7 +2129,7 @@ ini_set('memory_limit', '-1');
             // We keep the first one ($historyRecords[0]), loop through the rest (duplicates)
             $keepId = $historyRecords->first()->id;
             $duplicates = $historyRecords->slice(1);
-            dd($duplicates);
+            
             foreach ($duplicates as $item) {
                 // Map Type: Earn = 1, Debit = 2
                 $mappedType = (strtolower($item->type) == 'Earn') ? 1 : 2;
@@ -2142,7 +2142,7 @@ ini_set('memory_limit', '-1');
                     ->where('type', $mappedType)
                     ->orderBy('id', 'desc') 
                     ->first();
-
+                dd($walletEntry);
                 if ($walletEntry) {
                     // Delete from Wallet Table
                     DB::table('retailer_wallet_txns')->where('id', $walletEntry->id)->delete();
