@@ -2101,21 +2101,67 @@ ini_set('memory_limit', '-1');
 
 
 
-    public function duplicateCheck(Request $request)
-    
-    {
-        ini_set('memory_limit', '-1');
-        ini_set('max_execution_time', 0);
+   public function duplicateCheck(Request $request)
+{
+    ini_set('memory_limit', '512M');
+    ini_set('max_execution_time', 0);
 
+    // 1. Identify duplicates in the History Table
+    $duplicateGroups = DB::table('retailer_user_txn_histories')
+        ->select('user_id', 'description', DB::raw('COUNT(*) as occurrences'))
+        ->groupBy('user_id', 'description')
+        ->having('occurrences', '>', 1)
+        ->get();
 
+    $historyRemoved = 0;
+    $walletRemoved = 0;
 
-        $duplicates = DB::table('retailer_user_txn_histories')
-            ->select('user_id', 'description', DB::raw('COUNT(*) as occurrences'))
-            ->groupBy('user_id', 'description')
-            ->having('occurrences', '>', 1)
-            ->get();
+    DB::transaction(function () use ($duplicateGroups, &$historyRemoved, &$walletRemoved) {
+        foreach ($duplicateGroups as $group) {
+            
+            // Get all history records for this duplicate group
+            $historyRecords = DB::table('retailer_user_txn_histories')
+                ->where('user_id', $group->user_id)
+                ->where('description', $group->description)
+                ->orderBy('id', 'asc') 
+                ->get();
 
-        dd($duplicates);
-    }
+            // We keep the first one ($historyRecords[0]), loop through the rest (duplicates)
+            $keepId = $historyRecords->first()->id;
+            $duplicates = $historyRecords->slice(1);
+
+            foreach ($duplicates as $item) {
+                // Map Type: Earn = 1, Debit = 2
+                $mappedType = (strtolower($item->type) == 'Earn') ? 1 : 2;
+
+                // 2. Find matching records in the Wallet Table
+                // We order by DESC so we remove the newest wallet entries first
+                $walletEntry = DB::table('retailer_wallet_txns')
+                    ->where('user_id', $item->user_id)
+                    ->where('amount', $item->amount)
+                    ->where('type', $mappedType)
+                    ->orderBy('id', 'desc') 
+                    ->first();
+
+                if ($walletEntry) {
+                    // Delete from Wallet Table
+                    DB::table('retailer_wallet_txns')->where('id', $walletEntry->id)->delete();
+                    $walletRemoved++;
+
+                    // Delete from History Table
+                    DB::table('retailer_user_txn_histories')->where('id', $item->id)->delete();
+                    $historyRemoved++;
+                }
+            }
+        }
+    });
+
+    return response()->json([
+        'status' => true,
+        'history_removed' => $historyRemoved,
+        'wallet_removed' => $walletRemoved,
+        'message' => 'Duplicates removed from both tables. Please recalculate closing balances now.'
+    ]);
+}
     
 }
