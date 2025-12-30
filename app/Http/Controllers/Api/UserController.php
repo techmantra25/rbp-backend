@@ -2112,7 +2112,7 @@ ini_set('memory_limit', '-1');
         ->groupBy('user_id', 'description')
         ->having('occurrences', '>', 1)
         ->get();
-     dd($duplicateGroups);
+    
     $historyRemoved = 0;
     $walletRemoved = 0;
 
@@ -2125,7 +2125,7 @@ ini_set('memory_limit', '-1');
                 ->where('description', $group->description)
                 ->orderBy('id', 'asc') 
                 ->get();
-
+             dd($historyRecords);
             // We keep the first one ($historyRecords[0]), loop through the rest (duplicates)
             $keepId = $historyRecords->first()->id;
             $duplicates = $historyRecords->slice(1);
