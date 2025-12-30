@@ -1574,7 +1574,7 @@ public function ledger_08_12_2025(Request $request)
 }
 
 
-public function ledger(Request $request)
+/*public function ledger(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'retailer_uid' => ['nullable', 'array'],
@@ -1754,6 +1754,168 @@ public function ledger(Request $request)
                 "Redemption Cancellation Point Credit" => $redeemCancel,
                 "Manual Adjustment Point Credit" => $manualPlus,
                 "Manual Adjustment Point Debit" => $manualMinus,
+                "Closing balance" => $closingBalance,
+            ];
+        }
+    }
+
+    return response()->json([
+        "error" => false,
+        "message" => "Optimized Transaction history fetched successfully",
+        "data" => $output
+    ]);
+}*/
+
+
+
+    public function ledger(Request $request)
+{
+    // 1. Validation & Date Parsing
+    $request->validate([
+        'retailer_uid' => ['nullable', 'array'],
+        'startDate' => ['required', 'date'],
+        'endDate' => ['required', 'date'],
+    ]);
+
+    $startDate = Carbon::parse($request->startDate)->startOfDay();
+    $endDate = Carbon::parse($request->endDate)->endOfDay();
+
+    // 2. Load Retailers
+    $query = Store::with(['states', 'areas'])->where('status', 1);
+    if (!empty($request->retailer_uid)) {
+        $query->whereIn('uid', $request->retailer_uid);
+    }
+    $retailers = $query->get();
+
+    if ($retailers->isEmpty()) {
+        return response()->json(["error" => true, "message" => "No valid retailers found"]);
+    }
+
+    // 3. Collect All Possible IDs and Map them to a "Master Store ID"
+    $idToMasterMapping = [];
+    $allIdsForQuery = [];
+    foreach ($retailers as $r) {
+        $masterId = $r->id;
+        $ids = array_unique([$r->id, $r->unique_code, $r->uid]);
+        foreach ($ids as $id) {
+            $idToMasterMapping[$id] = $masterId;
+            $allIdsForQuery[] = $id;
+        }
+    }
+
+    // 4. Preload Wallet Data into a "Running Map" [master_id][date] = final_amount
+    // We only need the LAST transaction of each day
+    $walletMap = [];
+    $rawWallet = DB::table('retailer_wallet_txns')
+        ->whereIn('user_id', $allIdsForQuery)
+        ->whereBetween('created_at', [$startDate->copy()->subMonth(), $endDate]) // Get some history for opening balance
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    foreach ($rawWallet as $tw) {
+        $mId = $idToMasterMapping[$tw->user_id] ?? null;
+        if ($mId) {
+            $dateKey = date('Y-m-d', strtotime($tw->created_at));
+            $walletMap[$mId][$dateKey] = $tw->final_amount;
+        }
+    }
+
+    // 5. Preload Transaction History into a Map [master_id][date][category_sums]
+    $txnMap = [];
+    RetailerUserTxnHistory::with('orders')
+        ->whereIn('user_id', $allIdsForQuery)
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->chunk(2000, function ($history) use (&$txnMap, $idToMasterMapping) {
+            foreach ($history as $t) {
+                $mId = $idToMasterMapping[$t->user_id] ?? null;
+                if (!$mId) continue;
+                
+                $date = $t->created_at->format('Y-m-d');
+                
+                // Initialize daily array if not exists
+                if (!isset($txnMap[$mId][$date])) {
+                    $txnMap[$mId][$date] = [
+                        'bill' => 0, 'multiplier' => 0, 'manualPlus' => 0, 'manualMinus' => 0,
+                        'salesCancel' => 0, 'salesMultiCancel' => 0, 'openingStock' => 0,
+                        'redeemPoint' => 0, 'redeemCancel' => 0
+                    ];
+                }
+
+                $ref = &$txnMap[$mId][$date];
+
+                // logic categorization
+                if ($t->type === "Earn") {
+                    if ($t->amount_type === "SALES") $ref['bill'] += $t->amount;
+                    if ($t->amount_type === "Sales Multiplier") $ref['multiplier'] += $t->amount;
+                    if ($t->amount_type === "Opening Stock") $ref['openingStock'] += $t->amount;
+                }
+                if ($t->type === "manual-adjustment") {
+                    if ($t->status === "increment") $ref['manualPlus'] += $t->amount;
+                    if ($t->status === "decrement") $ref['manualMinus'] += $t->amount;
+                }
+                if ($t->type === "Debit") {
+                    if ($t->amount_type === "Sales Return") $ref['salesCancel'] += $t->amount;
+                    if ($t->amount_type === "Sales Multiplier") $ref['salesMultiCancel'] += $t->amount;
+                }
+                if ($t->orders) {
+                    $ref['redeemPoint'] += $t->orders->final_amount;
+                    if ($t->orders->status == 5) $ref['redeemCancel'] += $t->orders->final_amount;
+                }
+            }
+        });
+
+    // 6. Build the Period
+    $period = [];
+    for ($d = $startDate->copy(); $d <= $endDate; $d->addDay()) {
+        $period[] = $d->format('Y-m-d');
+    }
+
+    // 7. Final Process (Ultra Fast direct lookups)
+    $output = [];
+    foreach ($retailers as $user) {
+        $mId = $user->id;
+        
+        // Track running balance to handle days with no transactions
+        $lastKnownBalance = 0; 
+        
+        // Find initial opening balance (before startDate)
+        // Check map for latest entry before period
+        // For simplicity in this logic, we search backward once
+        $initialBalance = DB::table('retailer_wallet_txns')
+            ->whereIn('user_id', array_unique([$user->id, $user->unique_code, $user->uid]))
+            ->where('created_at', '<', $startDate)
+            ->orderBy('id', 'desc')
+            ->value('final_amount') ?? 0;
+
+        $lastKnownBalance = $initialBalance;
+
+        foreach ($period as $date) {
+            $dailyTxns = $txnMap[$mId][$date] ?? null;
+            $openingBalance = $lastKnownBalance;
+            
+            // Closing balance: check map for this day, else it's the same as opening
+            $closingBalance = $walletMap[$mId][$date] ?? $openingBalance;
+            $lastKnownBalance = $closingBalance;
+
+            $output[] = [
+                "Date" => $date,
+                "Retailer code" => $user->unique_code,
+                "Retailer id" => $user->uid,
+                "Retailer name" => $user->name,
+                "Retailer state" => $user->states->name ?? '',
+                "Retailer city" => $user->areas->name ?? '',
+                "DB Name" => $user->db_name ?? '',
+                "DB Code" => $user->db_code ?? '',
+                "Opening balance" => $openingBalance,
+                "Opening Stcok Point Credit" => $dailyTxns['openingStock'] ?? 0,
+                "Sales Point Credit" => $dailyTxns['bill'] ?? 0,
+                "Multiplier Point Credit" => $dailyTxns['multiplier'] ?? 0,
+                "Sales Return Point Debit" => $dailyTxns['salesCancel'] ?? 0,
+                "Sales Return Multiplier Point Debit" => $dailyTxns['salesMultiCancel'] ?? 0,
+                "Gift Redemption Point Debit" => $dailyTxns['redeemPoint'] ?? 0,
+                "Redemption Cancellation Point Credit" => $dailyTxns['redeemCancel'] ?? 0,
+                "Manual Adjustment Point Credit" => $dailyTxns['manualPlus'] ?? 0,
+                "Manual Adjustment Point Debit" => $dailyTxns['manualMinus'] ?? 0,
                 "Closing balance" => $closingBalance,
             ];
         }
