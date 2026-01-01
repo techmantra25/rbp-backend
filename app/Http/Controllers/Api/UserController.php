@@ -1574,7 +1574,7 @@ public function ledger_08_12_2025(Request $request)
 }
 
 
-/*public function ledger(Request $request)
+public function ledger(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'retailer_uid' => ['nullable', 'array'],
@@ -1764,11 +1764,11 @@ public function ledger_08_12_2025(Request $request)
         "message" => "Optimized Transaction history fetched successfully",
         "data" => $output
     ]);
-}*/
+}
 
 
 
-    public function ledger(Request $request)
+   /* public function ledger(Request $request)
 {
     // 1. Validation & Date Parsing
     $request->validate([
@@ -1926,7 +1926,7 @@ public function ledger_08_12_2025(Request $request)
         "message" => "Optimized Transaction history fetched successfully",
         "data" => $output
     ]);
-}
+}*/
 
 
 
