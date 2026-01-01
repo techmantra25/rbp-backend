@@ -685,6 +685,7 @@ public function videoCSVUpload(Request $request)
         $uid        = trim($data[0] ?? '');
         $contact = trim($data[2] ?? '');
         $name = trim($data[3] ?? '');
+        $fileStatus = trim($data[4] ?? ''); // Assuming status is in the next column
         if ($uniqueCode == '') {
             $row++;
             continue;
@@ -697,6 +698,7 @@ public function videoCSVUpload(Request $request)
             $store->uid = $uid;
             $store->contact = $contact;
             $store->name = $name;
+            $store->status = (strtolower($fileStatus) == 'active') ? 1 : 0;
             $store->save();
             $successCount++;
         }
@@ -826,6 +828,7 @@ public function videoCSVUpload(Request $request)
         $uid        = trim($data[0] ?? '');
         $contact = trim($data[2] ?? '');
         $name = trim($data[3] ?? '');
+        $fileStatus = trim($data[4] ?? ''); // Assuming status is in the next column
         if ($uniqueCode == '') {
             $row++;
             continue;
