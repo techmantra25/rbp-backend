@@ -449,7 +449,7 @@
                 <form method="post" action="{{ route('admin.video.csv.upload') }}" enctype="multipart/form-data" id="">@csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
-                    <a href="{{ asset('admin/name update_Sheet1.csv') }}">Download Sample CSV</a>
+                    <a href="{{ asset('admin/sample_details.csv') }}">Download Sample CSV</a>
                     <br>
                     <button type="submit" class="btn btn-danger mt-3" id="">Import <i class="fas fa-upload"></i></button>
                 </form>
