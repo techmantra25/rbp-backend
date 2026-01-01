@@ -683,7 +683,8 @@ public function videoCSVUpload(Request $request)
 
         $uniqueCode = trim($data[1] ?? '');
         $uid        = trim($data[0] ?? '');
-
+        $contact = trim($data[2] ?? '');
+        $name = trim($data[3] ?? '');
         if ($uniqueCode == '') {
             $row++;
             continue;
@@ -694,7 +695,8 @@ public function videoCSVUpload(Request $request)
 
         if ($store) {
             $store->uid = $uid;
-            $store->status = 0;
+            $store->contact = $contact;
+            $store->name = $name;
             $store->save();
             $successCount++;
         }
@@ -786,72 +788,65 @@ public function videoCSVUpload(Request $request)
      
      public function pannoUpdate(Request $request)
      {
-		 //dd($request->all());
-         if (!empty($request->file)) {
-             $file = $request->file('file');
-             $filename = $file->getClientOriginalName();
-             $extension = $file->getClientOriginalExtension();
-             $tempPath = $file->getRealPath();
-             $fileSize = $file->getSize();
-             $mimeType = $file->getMimeType();
- 
-             $valid_extension = array("csv");
-             $maxFileSize = 50097152;
-             if (in_array(strtolower($extension), $valid_extension)) {
-                 if ($fileSize <= $maxFileSize) {
-                     $location = 'public/uploads/csv';
-                     $file->move($location, $filename);
-                     // $filepath = public_path($location . "/" . $filename);
-                     $filepath = $location . "/" . $filename;
- 
-                     // dd($filepath);
- 
-                     $file = fopen($filepath, "r");
-                     $importData_arr = array();
-                     $i = 0;
-                     while (($filedata = fgetcsv($file, 10000, ",")) !== FALSE) {
-                         $num = count($filedata);
-                         // Skip first row
-                         if ($i == 0) {
-                             $i++;
-                             continue;
-                         }
-                         for ($c = 0; $c < $num; $c++) {
-                             $importData_arr[$i][] = $filedata[$c];
-                         }
-                         $i++;
-                     }
-                     fclose($file);
-                     $successCount = 0;
-                        $userId='';
-                     foreach ($importData_arr as $importData) {
-                        $count = $total = 0;
-                        $stateData = '';
-                        $user=Store::where('contact',$importData[1])->first();
-                        if(!empty($user)){
-                            $userId =$user->id;
-                        
-						$user=Store::findOrFail($userId);
-						$user->pin = $importData[2];
-						$user->district = $importData[3];
-						$user->save();
-                        }						
-                              
-                    
-                   
-                        
-                     }
-                 } else {
-                     Session::flash('message', 'File too large. File must be less than 50MB.');
-                 }
-             } else {
-                 Session::flash('message', 'Invalid File Extension. supported extensions are ' . implode(', ', $valid_extension));
-             }
-         } else {
-             Session::flash('message', 'No file found.');
-         }
- 
-         return redirect()->back();
+		  // Validate file BEFORE reading it
+    $request->validate([
+        'file' => 'required|mimes:csv,txt|max:102400', // 100MB
+    ]);
+
+    $file = $request->file('file');
+
+    // Store file temporarily
+    $path = $file->storeAs(
+        'uploads/csv',
+        time() . '-' . $file->getClientOriginalName(),
+        'public'
+    );
+
+    $fullPath = storage_path("app/public/" . $path);
+
+    // Open file in read-only mode
+    $handle = fopen($fullPath, 'r');
+
+    if (!$handle) {
+        return back()->with('message', 'Unable to open file.');
+    }
+
+    $row = 0;
+    $successCount = 0;
+
+    // Read CSV line-by-line (FAST + LOW MEMORY)
+    while (($data = fgetcsv($handle, 5000, ",")) !== false) {
+
+        if ($row == 0) { // skip header
+            $row++;
+            continue;
+        }
+
+        $uniqueCode = trim($data[1] ?? '');
+        $uid        = trim($data[0] ?? '');
+        $contact = trim($data[2] ?? '');
+        $name = trim($data[3] ?? '');
+        if ($uniqueCode == '') {
+            $row++;
+            continue;
+        }
+
+        // Find store
+        $store = Store::where('unique_code', $uniqueCode)->first();
+
+        if ($store) {
+            $store->uid = $uid;
+            $store->status = 0;
+            $store->save();
+            $successCount++;
+        }
+
+        $row++;
+    }
+
+    fclose($handle);
+
+    return back()->with('message', "$successCount records updated successfully.");
      }
      
      
