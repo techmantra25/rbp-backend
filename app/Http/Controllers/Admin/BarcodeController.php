@@ -647,7 +647,7 @@ class BarcodeController extends Controller
         $keyword = $request->keyword;
         $query->where(function($q) use ($keyword) {
             $q->where('stores.name', 'like', $keyword.'%')
-              ->orWhere('stores.contact', 'like', $keyword.'%');
+              ->orWhere('stores.contact', 'like', $keyword.'%')->orWhere('stores.unique_code', 'like', $keyword.'%')->orWhere('stores.uid', 'like', $keyword.'%');
         });
     }
 
