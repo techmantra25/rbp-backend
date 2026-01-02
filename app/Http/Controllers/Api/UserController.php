@@ -1633,7 +1633,7 @@ public function ledger(Request $request)
         ->orderBy('id')
         ->get()
         ->groupBy('user_id');
-    dd($walletTxns);
+   
     //---------------------------------------------------------
     // 4. PRELOAD ALL TRANSACTION HISTORY
     //---------------------------------------------------------
@@ -1678,15 +1678,30 @@ public function ledger(Request $request)
         foreach ($period as $date) {
 
             // Opening balance
-            $openingBalance = $sortedWallet
-                ->first(fn($txn) => $txn->created_at < $date . ' 00:00:00')
-                ->final_amount ?? 0;
+            //$openingBalance = $sortedWallet
+               // ->first(fn($txn) => $txn->created_at < $date . ' 00:00:00')
+               // ->final_amount ?? 0;
 
             // 3. Closing balance: Last transaction ON OR BEFORE this date
-            $closingBalance = $sortedWallet
-                ->first(fn($txn) => $txn->created_at <= $date . ' 23:59:59')
-                ->final_amount ?? $openingBalance;
+            //$closingBalance = $sortedWallet
+                //->first(fn($txn) => $txn->created_at <= $date . ' 23:59:59')
+                //->final_amount ?? $openingBalance;
+            $currentDate = $date->format('Y-m-d');
 
+            // 1. Opening Balance (Last transaction before the start of THIS day)
+            $openingBalance = DB::table('retailer_wallet_txns')
+                ->whereIN('user_id', $idList)
+                ->where('created_at', '<', $currentDate . ' 00:00:00')
+                ->orderBy('id', 'desc')
+                ->value('final_amount') ?? 0;
+
+            // 2. Closing Balance (Last transaction before the end of THIS day)
+            // We use <= 23:59:59 to get the absolute last state of the wallet for that day
+            $closingBalance = DB::table('user_wallets')
+                ->whereIN('user_id', $idList)
+                ->where('created_at', '<=', $currentDate . ' 23:59:59')
+                ->orderBy('id', 'desc')
+                ->value('final_amount') ?? $openingBalance;
             //---------------------------------------------------------
             // Get all transactions for this user for this date
             //---------------------------------------------------------
