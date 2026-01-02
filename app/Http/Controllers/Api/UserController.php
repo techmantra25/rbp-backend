@@ -1633,7 +1633,7 @@ public function ledger(Request $request)
         ->orderBy('id')
         ->get()
         ->groupBy('user_id');
-
+    dd($walletTxns);
     //---------------------------------------------------------
     // 4. PRELOAD ALL TRANSACTION HISTORY
     //---------------------------------------------------------
@@ -1672,7 +1672,7 @@ public function ledger(Request $request)
             }
         }
 
-        dd($userWallet);
+        
         $sortedWallet = $userWallet->sortByDesc('id');
         
         foreach ($period as $date) {
