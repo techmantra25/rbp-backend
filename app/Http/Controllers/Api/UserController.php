@@ -1788,12 +1788,49 @@ public function ledger_08_12_2025(Request $request)
 
   public function ledger(Request $request)
 {
-    // ... [Validation and Retailer Loading - Keep as is] ...
+   $validator = Validator::make($request->all(), [
+        'retailer_uid' => ['nullable', 'array'],
+        'retailer_uid.*' => ['string'],
+        'startDate' => ['required', 'date'],
+        'endDate' => ['required', 'date'],
+    ]);
 
+    if ($validator->fails()) {
+        return response()->json([
+            'error' => true,
+            'message' => $validator->errors()->first()
+        ]);
+    }
     // 1. Prepare Date Bounds
     $startDate = Carbon::parse($request->startDate)->startOfDay();
     $endDate   = Carbon::parse($request->endDate)->endOfDay();
+    //---------------------------------------------------------
+    // 1. LOAD RETAILERS ONLY ONCE
+    //---------------------------------------------------------
+    if (!empty($request->retailer_uid)) {
+        $retailers = Store::with(['states','areas'])->where('status',1)
+            ->whereIn('uid', $request->retailer_uid)
+            ->get();
+    } else {
+        $retailers = Store::with(['states','areas'])->where('status',1)->get();
+    }
 
+    if ($retailers->isEmpty()) {
+        return response()->json([
+            "error" => true,
+            "message" => "No valid retailers found",
+        ]);
+    }
+
+    //---------------------------------------------------------
+    // 2. BUILD USER LIST (id + unique_code)
+    //---------------------------------------------------------
+    $userIds = [];
+    foreach ($retailers as $r) {
+        $userIds[] = $r->id;
+        $userIds[] = $r->unique_code;
+        $userIds[] = $r->uid;
+    }
     // 2. Preload Wallet Txns (Step 3) - Ensure we have enough data for opening balance
     $walletTxns = DB::table('retailer_wallet_txns')
         ->whereIn('user_id', $userIds)
