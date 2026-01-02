@@ -1574,7 +1574,7 @@ public function ledger_08_12_2025(Request $request)
 }
 
 
-public function ledger(Request $request)
+/*public function ledger(Request $request)
 {
     $validator = Validator::make($request->all(), [
         'retailer_uid' => ['nullable', 'array'],
@@ -1779,6 +1779,122 @@ public function ledger(Request $request)
     return response()->json([
         "error" => false,
         "message" => "Optimized Transaction history fetched successfully",
+        "data" => $output
+    ]);
+}*/
+
+
+
+
+  public function ledger(Request $request)
+{
+    // ... [Validation and Retailer Loading - Keep as is] ...
+
+    // 1. Prepare Date Bounds
+    $startDate = Carbon::parse($request->startDate)->startOfDay();
+    $endDate   = Carbon::parse($request->endDate)->endOfDay();
+
+    // 2. Preload Wallet Txns (Step 3) - Ensure we have enough data for opening balance
+    $walletTxns = DB::table('retailer_wallet_txns')
+        ->whereIn('user_id', $userIds)
+        ->where('created_at', '<=', $endDate) // Load everything up to endDate
+        ->orderBy('id', 'desc') // Important: Sort by ID desc once here
+        ->get()
+        ->groupBy('user_id');
+
+    // ... [Preload Txn History - Keep as is] ...
+
+    $output = [];
+    foreach ($retailers as $user) {
+        $idList = [$user->id, $user->unique_code, $user->uid];
+
+        // 3. Merge all transactions for this user once
+        $userWallet = collect();
+        foreach ($idList as $uid) {
+            if (isset($walletTxns[$uid])) {
+                $userWallet = $userWallet->merge($walletTxns[$uid]);
+            }
+        }
+        
+        // Sort the user's specific wallet once before the date loop
+        $sortedWallet = $userWallet->sortByDesc('id');
+
+        foreach ($period as $date) {
+            
+            // ---------------------------------------------------------
+            // OPTIMIZED BALANCE CALCULATION (No DB Queries here)
+            // ---------------------------------------------------------
+            
+            // Opening Balance: Last record BEFORE this date (before 00:00:00)
+            $openingRow = $sortedWallet->first(function ($txn) use ($date) {
+                return $txn->created_at < $date . ' 00:00:00';
+            });
+            $openingBalance = $openingRow ? $openingRow->final_amount : 0;
+
+            // Closing Balance: Last record ON OR BEFORE the end of this date (before 23:59:59)
+            $closingRow = $sortedWallet->first(function ($txn) use ($date) {
+                return $txn->created_at <= $date . ' 23:59:59';
+            });
+            $closingBalance = $closingRow ? $closingRow->final_amount : $openingBalance;
+
+            // ---------------------------------------------------------
+            // TRANSACTION COUNTERS (Using preloaded txnHistory)
+            // ---------------------------------------------------------
+            $allTxns = collect();
+            foreach ($idList as $uid) {
+                $key = $uid . "_" . $date;
+                if (isset($txnHistory[$key])) {
+                    $allTxns = $allTxns->merge($txnHistory[$key]);
+                }
+            }
+
+            $bill = $multiplier = $manualPlus = $salesCancel = $salesMultiCancel = 0;
+            $redeemCancel = $redeemPoint = $manualMinus = $openingStock = 0;
+
+            foreach ($allTxns as $t) {
+                if ($t->type === "Earn") {
+                    if ($t->amount_type === "SALES") $bill += $t->amount;
+                    if ($t->amount_type === "Sales Multiplier") $multiplier += $t->amount;
+                    if ($t->amount_type === "Opening Stock") $openingStock += $t->amount;
+                }
+                if ($t->type === "manual-adjustment") {
+                    if ($t->status === "increment") $manualPlus += $t->amount;
+                    if ($t->status === "decrement") $manualMinus += $t->amount;
+                }
+                if ($t->amount_type === "Sales Return" && $t->type === "Debit") $salesCancel += $t->amount;
+                if ($t->amount_type === "Sales Multiplier" && $t->type === "Debit") $salesMultiCancel += $t->amount;
+
+                if ($t->orders) {
+                    $redeemPoint += $t->orders->final_amount;
+                    if ($t->orders->status == 5) $redeemCancel += $t->orders->final_amount;
+                }
+            }
+
+            $output[] = [
+                "Date" => $date,
+                "Retailer code" => $user->unique_code,
+                "Retailer id" => $user->uid,
+                "Retailer name" => $user->name,
+                "Retailer state" => $user->states->name ?? '',
+                "Retailer city" => $user->areas->name ?? '',
+                "Opening balance" => $openingBalance,
+                "Opening Stcok Point Credit" => $openingStock,
+                "Sales Point Credit" => $bill,
+                "Multiplier Point Credit" => $multiplier,
+                "Sales Return Point Debit" => $salesCancel,
+                "Sales Return Multiplier Point Debit" => $salesMultiCancel,
+                "Gift Redemption Point Debit" => $redeemPoint,
+                "Redemption Cancellation Point Credit" => $redeemCancel,
+                "Manual Adjustment Point Credit" => $manualPlus,
+                "Manual Adjustment Point Debit" => $manualMinus,
+                "Closing balance" => $closingBalance,
+            ];
+        }
+    }
+
+    return response()->json([
+        "error" => false,
+        "message" => "Optimized ledger generated",
         "data" => $output
     ]);
 }
