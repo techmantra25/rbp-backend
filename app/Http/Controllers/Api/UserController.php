@@ -1672,6 +1672,7 @@ public function ledger(Request $request)
             }
         }
         $sortedWallet = $userWallet->sortByDesc('id');
+        dd($sortedWallet);
         foreach ($period as $date) {
 
             // Opening balance
