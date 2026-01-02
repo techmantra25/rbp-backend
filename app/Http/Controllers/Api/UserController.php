@@ -1839,7 +1839,27 @@ public function ledger_08_12_2025(Request $request)
         ->get()
         ->groupBy('user_id');
 
-    // ... [Preload Txn History - Keep as is] ...
+    //---------------------------------------------------------
+    // 4. PRELOAD ALL TRANSACTION HISTORY
+    //---------------------------------------------------------
+    $txnHistory = RetailerUserTxnHistory::with('orders')
+        ->whereIn('user_id', $userIds)
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->orderBy('created_at')
+        ->get()
+        ->groupBy(function ($item) {
+            return $item->user_id . '_' . $item->created_at->format('Y-m-d');
+        });
+
+    //---------------------------------------------------------
+    // 5. BUILD DATE RANGE (IN PERIOD VARIABLE)
+    //---------------------------------------------------------
+    $period = [];
+    $current = $startDate->copy();
+    while ($current <= $endDate) {
+        $period[] = $current->format('Y-m-d');
+        $current->addDay();
+    }
 
     $output = [];
     foreach ($retailers as $user) {
