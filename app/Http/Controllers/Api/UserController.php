@@ -1676,12 +1676,12 @@ public function ledger(Request $request)
 
             // Opening balance
             $openingBalance = optional(
-                $userWallet->where('created_at', '<', $date)->sortByDesc('id')
+                $userWallet->sortByDesc('id')
             )->value('final_amount') ?? 0;
             
             // Closing balance
             $closingBalance = optional(
-                $userWallet->whereBetween('created_at', [$date . ' 00:00:00', $date . ' 23:59:59'])
+                $userWallet
                     ->sortByDesc('id')
             )->value('final_amount')  ?? $openingBalance;
 
