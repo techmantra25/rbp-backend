@@ -1671,8 +1671,10 @@ public function ledger(Request $request)
                 $userWallet = $userWallet->merge($walletTxns[$uid]);
             }
         }
+
+        dd($userWallet);
         $sortedWallet = $userWallet->sortByDesc('id');
-        dd($sortedWallet);
+        
         foreach ($period as $date) {
 
             // Opening balance
