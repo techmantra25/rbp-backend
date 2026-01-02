@@ -1671,19 +1671,18 @@ public function ledger(Request $request)
                 $userWallet = $userWallet->merge($walletTxns[$uid]);
             }
         }
-
+        $sortedWallet = $userWallet->sortByDesc('id');
         foreach ($period as $date) {
 
             // Opening balance
-            $openingBalance = optional(
-                $userWallet->sortByDesc('id')
-            )->value('final_amount') ?? 0;
-            
-            // Closing balance
-            $closingBalance = optional(
-                $userWallet
-                    ->sortByDesc('id')
-            )->value('final_amount')  ?? $openingBalance;
+            $openingBalance = $sortedWallet
+                ->first(fn($txn) => $txn->created_at < $date . ' 00:00:00')
+                ->final_amount ?? 0;
+
+            // 3. Closing balance: Last transaction ON OR BEFORE this date
+            $closingBalance = $sortedWallet
+                ->first(fn($txn) => $txn->created_at <= $date . ' 23:59:59')
+                ->final_amount ?? $openingBalance;
 
             //---------------------------------------------------------
             // Get all transactions for this user for this date
