@@ -559,7 +559,7 @@ class BarcodeController extends Controller
 }*/
 
 
-    public function qrRedeem(Request $request)
+    /*public function qrRedeem(Request $request)
 {
     // Start the query builder
     $query = RetailerUserTxnHistory::select(
@@ -614,6 +614,53 @@ class BarcodeController extends Controller
                   ->paginate(25)
                   ->withQueryString(); // Keeps filters in pagination links
    //dd($data);
+    return view('admin.reward.barcode.redeem', compact('data', 'request'));
+}*/
+
+
+    public function qrRedeem(Request $request)
+{
+    // Use a simpler Join or Eager Loading. 
+    // If user_id in history matches stores.unique_code most of the time, 
+    // pick the most common one for the JOIN and handle others via mapping.
+    
+    $query = RetailerUserTxnHistory::query()
+        ->select(
+            'retailer_user_txn_histories.*',
+            'stores.name', 'stores.unique_code', 'stores.uid', 
+            'stores.contact', 'stores.area_id', 'stores.city'
+        )
+        // Optimization: Use a LEFT JOIN on the most likely column
+        // If your data is messy, we join on the primary unique identifier
+        ->join('stores', 'stores.unique_code', '=', 'retailer_user_txn_histories.user_id');
+
+    // Apply Date Filters (Index on created_at makes this instant)
+    if ($request->filled('date_from') || $request->filled('date_to')) {
+        $from = $request->date_from ?? date('Y-m-01');
+        $to = $request->date_to ? Carbon::parse($request->date_to)->endOfDay() : now();
+        $query->whereBetween('retailer_user_txn_histories.created_at', [$from, $to]);
+    }
+
+    // Keyword Search
+    if ($request->filled('keyword')) {
+        $keyword = $request->keyword;
+        $query->where(function($q) use ($keyword) {
+            $q->where('stores.name', 'like', $keyword.'%')
+              ->orWhere('stores.contact', 'like', $keyword.'%');
+        });
+    }
+
+    // Distributor / ASE filters
+    if ($request->distributor) {
+        $query->where('stores.distributor_id', $request->distributor);
+    }
+    
+    // Execute with cursor pagination or simple pagination
+    // latest() uses 'created_at', latest('id') is faster if ID is primary key
+    $data = $query->orderBy('retailer_user_txn_histories.id', 'desc')
+                  ->paginate(25)
+                  ->withQueryString();
+
     return view('admin.reward.barcode.redeem', compact('data', 'request'));
 }
 
