@@ -1718,6 +1718,7 @@ public function adjustment(Request $request,$id)
 {
    
        $order=Store::where('id',$id)->first();
+       $userId=$order->id;
        if(!empty($order)){
             $data=new RetailerUserTxnHistory();
             $data->user_id = $order->id;
@@ -1732,7 +1733,11 @@ public function adjustment(Request $request,$id)
     		$data->updated_at = date('Y-m-d H:i:s');
             $data->save();
             
-            $userAmount=RetailerWalletTxn::where('user_id',$order->id)->orWhere('user_id',$order->unique_code)->orderby('id','desc')->first();
+            $userAmount=RetailerWalletTxn::where(function ($q) use ($userId, $order) {
+                    $q->where('user_id', $userId)
+                      ->orWhere('user_id', $order->unique_code)
+                        ->orWhere('user_id', $order->uid);
+                })->orderby('id','desc')->first();
 									$walletTxn=new RetailerWalletTxn();
 									$walletTxn->user_id = $order->id;
 									
