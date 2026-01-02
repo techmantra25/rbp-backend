@@ -1686,12 +1686,12 @@ public function ledger(Request $request)
             //$closingBalance = $sortedWallet
                 //->first(fn($txn) => $txn->created_at <= $date . ' 23:59:59')
                 //->final_amount ?? $openingBalance;
-            $currentDate = $date->format('Y-m-d');
+           
 
             // 1. Opening Balance (Last transaction before the start of THIS day)
             $openingBalance = DB::table('retailer_wallet_txns')
                 ->whereIN('user_id', $idList)
-                ->where('created_at', '<', $currentDate . ' 00:00:00')
+                ->where('created_at', '<', $date . ' 00:00:00')
                 ->orderBy('id', 'desc')
                 ->value('final_amount') ?? 0;
 
@@ -1699,7 +1699,7 @@ public function ledger(Request $request)
             // We use <= 23:59:59 to get the absolute last state of the wallet for that day
             $closingBalance = DB::table('user_wallets')
                 ->whereIN('user_id', $idList)
-                ->where('created_at', '<=', $currentDate . ' 23:59:59')
+                ->where('created_at', '<=', $date . ' 23:59:59')
                 ->orderBy('id', 'desc')
                 ->value('final_amount') ?? $openingBalance;
             //---------------------------------------------------------
