@@ -250,7 +250,7 @@
                                         <form action="{{ route('admin.stores.destroy',$item->id) }}" method="POST">
                                             <a href="{{ route('admin.stores.edit', $item->id) }}">Edit</a>
                                             <a href="{{ route('admin.stores.show', $item->id) }}">View</a>
-											 
+											 <a href="{{ route('admin.stores.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
                                             @csrf
                                             @method('DELETE')
                                             @if($item->status == 0)
