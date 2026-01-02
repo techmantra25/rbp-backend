@@ -1697,7 +1697,7 @@ public function ledger(Request $request)
 
             // 2. Closing Balance (Last transaction before the end of THIS day)
             // We use <= 23:59:59 to get the absolute last state of the wallet for that day
-            $closingBalance = DB::table('user_wallets')
+            $closingBalance = DB::table('retailer_user_txn_histories')
                 ->whereIN('user_id', $idList)
                 ->where('created_at', '<=', $date . ' 23:59:59')
                 ->orderBy('id', 'desc')
