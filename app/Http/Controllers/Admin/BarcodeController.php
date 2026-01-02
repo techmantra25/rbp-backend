@@ -633,7 +633,12 @@ class BarcodeController extends Controller
         )
         // Optimization: Use a LEFT JOIN on the most likely column
         // If your data is messy, we join on the primary unique identifier
-        ->join('stores', 'stores.unique_code', '=', 'retailer_user_txn_histories.user_id');
+        ->join('stores', function ($join) {
+            // Optimization: Ensure these 3 columns in 'stores' are INDEXED in your DB
+            $join->on('stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
+                 ->orOn('stores.uid', '=', 'retailer_user_txn_histories.user_id')
+                 ->orOn('stores.id', '=', 'retailer_user_txn_histories.user_id');
+        });
 
     // Apply Date Filters (Index on created_at makes this instant)
     if ($request->filled('date_from') || $request->filled('date_to')) {
