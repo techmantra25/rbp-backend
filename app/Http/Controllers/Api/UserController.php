@@ -1874,7 +1874,7 @@ public function ledger_08_12_2025(Request $request)
         }
         
         // Sort the user's specific wallet once before the date loop
-        $sortedWallet = $userWallet->sortByDesc('id');
+        $sortedWallet = $userWallet->sortByDesc('created_at');
 
         foreach ($period as $date) {
             
