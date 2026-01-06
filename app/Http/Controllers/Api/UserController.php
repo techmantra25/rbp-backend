@@ -1875,7 +1875,7 @@ public function ledger_08_12_2025(Request $request)
         
         // Sort the user's specific wallet once before the date loop
         $sortedWallet = $userWallet->sortByDesc('created_at');
-        dd($sortedWallet);
+        
         foreach ($period as $date) {
             
             // ---------------------------------------------------------
@@ -1890,7 +1890,7 @@ public function ledger_08_12_2025(Request $request)
 
             // Closing Balance: Last record ON OR BEFORE the end of this date (before 23:59:59)
             $closingRow = $sortedWallet->first(function ($txn) use ($date) {
-                return $txn->created_at < $date . ' 23:59:59';
+                return $txn->created_at <= $date . ' 23:59:59';
             });
             $closingBalance = $closingRow ? $closingRow->final_amount : $openingBalance;
 
