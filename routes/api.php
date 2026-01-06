@@ -454,3 +454,4 @@ Route::get('stores/closing/balance/update', [UserController::class, 'storeclosin
 
 
 Route::get('transaction/duplicate/check', [UserController::class, 'duplicateCheck'])->name('duplicate.check');
+Route::get('store/id/change', [UserController::class, 'storeidChange'])->name('store.id.change');
