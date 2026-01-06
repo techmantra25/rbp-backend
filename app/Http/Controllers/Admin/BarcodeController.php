@@ -1096,6 +1096,7 @@ public function qrRedeemcsvExport(Request $request)
 }
     public function qrRedeemUpdate(Request $request, $id)
 {
+    dd($request->all());
     return DB::transaction(function () use ($id,$request) {
         // 1. Fetch the transaction
         $qrTrans = RetailerUserTxnHistory::findOrFail($id);
