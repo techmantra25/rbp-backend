@@ -119,7 +119,10 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                   <td>
                             {{ $item->description }}
                     <div class="row__action">
-                    <a href="#editModal{{ $item->id }}" data-bs-toggle="modal" class="btn btn-sm btn-link">Edit</a>
+                    {{--<a href="#editModal{{ $item->id }}" data-bs-toggle="modal" class="btn btn-sm btn-link">Edit</a>--}}
+                        <button type="button" class="btn btn-sm btn-link" data-bs-toggle="modal" data-bs-target="#editModal{{ $item->id }}">
+                            Edit
+                        </button>
         
                     <form action="{{ route('admin.reward.qrcode.redeem.delete', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
                         @csrf
@@ -127,9 +130,9 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                         <button type="submit" class="btn btn-sm btn-link text-danger">Delete</button>
                     </form>
             
-                    <div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $item->id }}" aria-hidden="true">
+                    <div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog">
-                            <div class="modal-content">
+                            <div class="modal-content-lg">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="editModalLabel{{ $item->id }}">Edit Transaction</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
