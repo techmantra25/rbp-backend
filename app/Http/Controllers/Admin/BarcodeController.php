@@ -619,53 +619,38 @@ class BarcodeController extends Controller
 }*/
 
 
-    public function qrRedeem(Request $request)
+   public function qrRedeem(Request $request)
 {
-    // Use a simpler Join or Eager Loading. 
-    // If user_id in history matches stores.unique_code most of the time, 
-    // pick the most common one for the JOIN and handle others via mapping.
-    
-    $query = RetailerUserTxnHistory::query()
-        ->select(
-            'retailer_user_txn_histories.*',
-            'stores.name', 'stores.unique_code', 'stores.uid', 
-            'stores.contact', 'stores.area_id', 'stores.city'
-        )
-        // Optimization: Use a LEFT JOIN on the most likely column
-        // If your data is messy, we join on the primary unique identifier
-        ->join('stores', function ($join) {
-            // Optimization: Ensure these 3 columns in 'stores' are INDEXED in your DB
-            $join->on('stores.unique_code', '=', 'retailer_user_txn_histories.user_id')
-                 ->orOn('stores.uid', '=', 'retailer_user_txn_histories.user_id')
-                 ->orOn('stores.id', '=', 'retailer_user_txn_histories.user_id');
-        });
+    // Use Eager Loading instead of a JOIN with OR conditions
+    // This executes 2 simple queries instead of 1 massive, slow complex join
+    $query = RetailerUserTxnHistory::with(['store']); 
 
-    // Apply Date Filters (Index on created_at makes this instant)
+    // Filter by Date
     if ($request->filled('date_from') || $request->filled('date_to')) {
         $from = $request->date_from ?? date('Y-m-01');
         $to = $request->date_to ? Carbon::parse($request->date_to)->endOfDay() : now();
-        $query->whereBetween('retailer_user_txn_histories.created_at', [$from, $to]);
+        $query->whereBetween('created_at', [$from, $to]);
     }
 
-    // Keyword Search
-    if ($request->filled('keyword')) {
-        $keyword = $request->keyword;
-        $query->where(function($q) use ($keyword) {
-            $q->where('stores.name', 'like', $keyword.'%')
-              ->orWhere('stores.contact', 'like', $keyword.'%')->orWhere('stores.unique_code', 'like', $keyword.'%')->orWhere('stores.uid', 'like', $keyword.'%');
+    // Filter by Store attributes (Search)
+    if ($request->filled('keyword') || $request->filled('distributor')) {
+        $query->whereHas('store', function($q) use ($request) {
+            if ($request->filled('keyword')) {
+                $keyword = $request->keyword;
+                // Ensure these columns are indexed in the 'stores' table
+                $q->where(function($sq) use ($keyword) {
+                    $sq->where('name', 'like', $keyword.'%')
+                       ->orWhere('contact', 'like', $keyword.'%')
+                       ->orWhere('unique_code', $keyword); // Exact match is faster
+                });
+            }
+            if ($request->distributor) {
+                $q->where('distributor_id', $request->distributor);
+            }
         });
     }
 
-    // Distributor / ASE filters
-    if ($request->distributor) {
-        $query->where('stores.distributor_id', $request->distributor);
-    }
-    
-    // Execute with cursor pagination or simple pagination
-    // latest() uses 'created_at', latest('id') is faster if ID is primary key
-    $data = $query->orderBy('retailer_user_txn_histories.id', 'desc')
-                  ->paginate(25)
-                  ->withQueryString();
+    $data = $query->latest('id')->paginate(25)->withQueryString();
 
     return view('admin.reward.barcode.redeem', compact('data', 'request'));
 }
