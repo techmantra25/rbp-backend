@@ -1835,7 +1835,7 @@ public function ledger_08_12_2025(Request $request)
     $walletTxns = DB::table('retailer_wallet_txns')
         ->whereIn('user_id', $userIds)
         ->where('created_at', '<=', $endDate) // Load everything up to endDate
-        ->orderBy('id', 'desc') // Important: Sort by ID desc once here
+        ->orderBy('created_at') // Important: Sort by ID desc once here
         ->get()
         ->groupBy('user_id');
 
