@@ -1096,7 +1096,7 @@ public function qrRedeemcsvExport(Request $request)
 }
     public function qrRedeemUpdate(Request $request, $id)
 {
-    return DB::transaction(function () use ($id) {
+    return DB::transaction(function () use ($id,$request) {
         // 1. Fetch the transaction
         $qrTrans = RetailerUserTxnHistory::findOrFail($id);
         $mappedType = ($qrTrans->type == 'Earn') ? 1 : 2;
