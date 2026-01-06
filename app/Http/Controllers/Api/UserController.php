@@ -2515,5 +2515,46 @@ ini_set('memory_limit', '-1');
         'message' => 'Duplicates removed from both tables. Please recalculate closing balances now.'
     ]);
 }
+
+
+
+   public function storeidChange(Request $request)
+{
+    ini_set('memory_limit', '512M'); // Set a reasonable limit
+    ini_set('max_execution_time', 0);
+
+    // Process stores in chunks
+    Store::select('id', 'uid', 'unique_code')
+        ->chunk(500, function ($stores) {
+            foreach ($stores as $store) {
+                // Skip if UID is missing
+                if (empty($store->uid)) continue;
+
+                // Collect other identifiers that need to be replaced
+                $oldIdentifiers = array_filter([
+                    (string) $store->id,
+                    (string) $store->unique_code,
+                ], fn($value) => $value !== (string) $store->uid);
+
+                if (empty($oldIdentifiers)) continue;
+
+                // 1. Bulk Update RetailerWalletTxn
+                \DB::table('retailer_wallet_txns')
+                    ->whereIn('user_id', $oldIdentifiers)
+                    ->update(['user_id' => $store->uid]);
+
+                // 2. Bulk Update RetailerUserTxnHistory
+                \DB::table('retailer_user_txn_histories')
+                    ->whereIn('user_id', $oldIdentifiers)
+                    ->update(['user_id' => $store->uid]);
+            }
+        });
+
+    return response()->json([
+        'status' => true,
+        'message' => 'All transaction user_id values have been normalized to UID.'
+    ]);
+}
+
     
 }
