@@ -2413,7 +2413,7 @@ ini_set('memory_limit', '-1');
 
                 // Get all wallet transactions for this retailer
                 $transactions = RetailerWalletTxn::whereIn('user_id', $identifiers)
-                    ->orderBy('id') // IMPORTANT: sequence matters
+                    ->orderBy('created_at') // IMPORTANT: sequence matters
                     ->get();
 
                 if ($transactions->isEmpty()) {
