@@ -1096,8 +1096,8 @@ public function qrRedeemcsvExport(Request $request)
 }
     public function qrRedeemUpdate(Request $request, $id)
 {
-    dd($request->all());
-    return DB::transaction(function () use ($id,$request) {
+    //dd($request->all());
+    
         // 1. Fetch the transaction
         $qrTrans = RetailerUserTxnHistory::findOrFail($id);
         $mappedType = ($qrTrans->type == 'Earn') ? 1 : 2;
@@ -1122,7 +1122,7 @@ public function qrRedeemcsvExport(Request $request)
         $retTran->save();
 
         return redirect()->back()->with('success' , 'Transaction deleted and wallet adjusted.');
-    });
+    
 }
 	
 		
