@@ -641,7 +641,7 @@ class BarcodeController extends Controller
                 $q->where(function($sq) use ($keyword) {
                     $sq->where('name', 'like', $keyword.'%')
                        ->orWhere('contact', 'like', $keyword.'%')
-                       ->orWhere('unique_code', $keyword)->orWhere('uid', $keyword); // Exact match is faster
+                       ->orWhere('unique_code', $keyword)->orWhere('uid', $keyword)->orWhere('remarks', $keyword); // Exact match is faster
                 });
             }
             if ($request->distributor) {
