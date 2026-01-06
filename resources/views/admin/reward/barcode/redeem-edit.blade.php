@@ -19,7 +19,7 @@
                                 <div class="form-group">
 									                  <label for="designation">Amount <span class="text-danger">*</span></label>
                                     <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" id="amount" name="amount" placeholder="name@example.com" value="{{ old('amount') ? old('amount') :  $qrTrans->amount }} ">
+                                        <input type="text" class="form-control" id="amount" name="amount" placeholder="name@example.com" value="{{ old('amount',$qrTrans->amount) }} ">
                                         
                                     </div>
                                     @error('amount') <p class="small text-danger">{{$message}}</p> @enderror
@@ -29,7 +29,7 @@
                                 <div class="form-group">
 										                 <label for="employee_id">Employee ID<span class="text-danger">*</span></label>
                                     <div class="form-floating mb-3">
-                                        <textarea type="text" class="form-control" id="description" name="description" placeholder="remarks" value="{{ old('description') ? old('description') :  $qrTrans->amount  }}"></textarea>
+                                        <textarea type="text" class="form-control" id="description" name="description" placeholder="remarks" value="{{ old('description', $qrTrans->description) }}"></textarea>
                                        
                                     </div>
                                     @error('description') <p class="small text-danger">{{$message}}</p> @enderror
