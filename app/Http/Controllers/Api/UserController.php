@@ -1883,7 +1883,7 @@ public function ledger_08_12_2025(Request $request)
             // ---------------------------------------------------------
             
             // Opening Balance: Last record BEFORE this date (before 00:00:00)
-            $openingRow = $sortedWallet->last(function ($txn) use ($date) {
+            $openingRow = $sortedWallet->first(function ($txn) use ($date) {
                 return $txn->created_at < $date . ' 00:00:00';
             });
             $openingBalance = $openingRow ? $openingRow->final_amount : 0;
