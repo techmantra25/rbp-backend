@@ -137,7 +137,7 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                                                                             <div class="form-floating mb-3">
                                                                                 
                                                                                 <label for="state">Remarks *</label>
-                                                                                <textarea type="text" class="form-control" id="description" name="description" placeholder="name@example.com" value="{{ old('description') ? old('description') : $item>description }}"></textarea>
+                                                                                <textarea type="text" class="form-control" id="description" name="description" placeholder="name@example.com" value="{{ old('description') ? old('description') : $item->description }}"></textarea>
                                                                                     
                                                                             </div>
                                                                             @error('description') <p class="small text-danger">{{$message}}</p> @enderror
@@ -146,7 +146,7 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                                                                             <div class="form-floating mb-3">
                                                                                 
                                                                                 <label for="state">Amount *</label>
-                                                                                <input type="number" class="form-control" id="amount" name="amount" placeholder="name@example.com" value="{{ old('amount') ? old('amount') : $item>amount }}">
+                                                                                <input type="number" class="form-control" id="amount" name="amount" placeholder="name@example.com" value="{{ old('amount') ? old('amount') : $item->amount }}">
                                                                                     
                                                                             </div>
                                                                             @error('amount') <p class="small text-danger">{{$message}}</p> @enderror
