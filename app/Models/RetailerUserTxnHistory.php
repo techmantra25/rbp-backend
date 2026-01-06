@@ -30,6 +30,6 @@ class RetailerUserTxnHistory extends Model
 	}
     public function store() {
     // Try to match on the most common identifier (e.g., unique_code)
-    return $this->belongsTo('App\Models\Store', 'user_id', 'id,unique_code,uid');
+    return $this->belongsTo('App\Models\Store', 'user_id', 'uid');
 }
 }
