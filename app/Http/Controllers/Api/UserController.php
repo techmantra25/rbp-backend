@@ -1890,7 +1890,7 @@ public function ledger_08_12_2025(Request $request)
 
             // Closing Balance: Last record ON OR BEFORE the end of this date (before 23:59:59)
             $closingRow = $sortedWallet->first(function ($txn) use ($date) {
-                return $txn->created_at <= $date . ' 23:59:59';
+                return $txn->created_at <= $date;
             });
             $closingBalance = $closingRow ? $closingRow->final_amount : $openingBalance;
 
