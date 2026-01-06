@@ -1066,6 +1066,27 @@ public function qrRedeemcsvExport(Request $request)
 		$allDistributors = User::select('id','name','employee_id','state')->where('type', '=', 7)->where('name', '!=', null)->groupBy('name')->orderBy('name')->get();
 		 return view('admin.reward.barcode.history', compact('data','allDistributors','request'));
 	}
+
+    public function qrRedeemDelete(Request $request,$id)
+    {
+        $qrTrans=RetailerUserTxnHistory::where('id',$id)->first();
+        $user=Store::where('id',$qrTrans->user_id)->orWhere('unique_code',$qrTrans->user_id)->orWhere('uid',$qrTrans->user_id)->first();
+                        if(!empty($user)){
+                            $userId =$user->id;
+                        }
+                        if(!empty($qrTrans)){
+                            $user=Store::findOrFail($userId);
+    						$user->wallet -= $qrTrans->amount ;
+    						$user->save();
+                        
+                            $qrTrans->delete();
+                        }
+                        $walletHistory = RetailerWalletTxn::where('user_id', $qrTrans->user_id)->where('amount',$qrTrans->amount)->first();
+                        if(!empty($walletHistory)){
+                            $walletHistory->delete();
+                        }
+                        
+    }
 	
 		
 }
