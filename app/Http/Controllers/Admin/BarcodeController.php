@@ -1115,7 +1115,7 @@ public function qrRedeemcsvExport(Request $request)
         // 5. Delete the main transaction history
         $retTran->save();
 
-        return response()->json(['message' => 'Transaction deleted and wallet adjusted.']);
+        return redirect()->back()->with('success' , 'Transaction deleted and wallet adjusted.');
     });
 }
 	
