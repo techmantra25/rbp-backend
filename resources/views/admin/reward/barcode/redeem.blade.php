@@ -119,10 +119,8 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                   <td>
                             {{ $item->description }}
                     <div class="row__action">
-                    {{--<a href="#editModal{{ $item->id }}" data-bs-toggle="modal" class="btn btn-sm btn-link">Edit</a>--}}
-                        <button type="button" class="btn btn-sm btn-link" data-bs-toggle="modal" data-bs-target="#editModal{{ $item->id }}">
-                            Edit
-                        </button>
+                    <a href="{{ route('admin.reward.qrcode.redeem.edit', $item->id) }}" class="btn btn-sm btn-link">Edit</a>
+                        
         
                     <form action="{{ route('admin.reward.qrcode.redeem.delete', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
                         @csrf
