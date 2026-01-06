@@ -119,9 +119,50 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                          <td>
                             {{ $item->description }}
                              <div class="row__action">
-                                        <form action="{{ route('admin.reward.qrcode.redeem.destroy',$item->id) }}" method="POST">
-                                            <a href="{{ route('admin.reward.qrcode.redeem.edit', $item->id) }}">Edit</a>
+                                        <form action="{{ route('admin.reward.qrcode.redeem.delete',$item->id) }}" method="POST">
+                                            <a href="#newRangeModal" data-bs-toggle="modal">Edit</a>
+                                            <div class="modal fade" id="newRangeModal" tabindex="-1"  aria-labelledby="newRangeModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="newRangeModalLabel">Edit transaction</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form action="{{ route('admin.reward.qrcode.redeem.delete',$item->id) }}" method="POST">@csrf
+                                                                
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group">
+                                                                            <div class="form-floating mb-3">
+                                                                                
+                                                                                <label for="state">Remarks *</label>
+                                                                                <textarea type="text" class="form-control" id="description" name="description" placeholder="name@example.com" value="{{ old('description') ? old('description') : $item>description }}"></textarea>
+                                                                                    
+                                                                            </div>
+                                                                            @error('description') <p class="small text-danger">{{$message}}</p> @enderror
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <div class="form-floating mb-3">
+                                                                                
+                                                                                <label for="state">Amount *</label>
+                                                                                <input type="number" class="form-control" id="amount" name="amount" placeholder="name@example.com" value="{{ old('amount') ? old('amount') : $item>amount }}">
+                                                                                    
+                                                                            </div>
+                                                                            @error('amount') <p class="small text-danger">{{$message}}</p> @enderror
+                                                                        </div>
+                                                                    </div> 
+                                                                </div>
                                             
+                                                                <div class="col-12 mt-3">
+                                                                        <button type="submit" class="btn btn-sm btn-danger">Add Area</button>
+                                                                </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 											 
                                             @csrf
                                             @method('DELETE')
@@ -195,6 +236,11 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
         </div>
     </div>
 </div>
+
+
+
+
+
 @endsection
 
 @section('script')
