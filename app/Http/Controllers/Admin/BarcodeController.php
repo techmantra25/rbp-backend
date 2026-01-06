@@ -1067,26 +1067,41 @@ public function qrRedeemcsvExport(Request $request)
 		 return view('admin.reward.barcode.history', compact('data','allDistributors','request'));
 	}
 
-    public function qrRedeemDelete(Request $request,$id)
-    {
-        $qrTrans=RetailerUserTxnHistory::where('id',$id)->first();
-        $user=Store::where('id',$qrTrans->user_id)->orWhere('unique_code',$qrTrans->user_id)->orWhere('uid',$qrTrans->user_id)->first();
-                        if(!empty($user)){
-                            $userId =$user->id;
-                        }
-                        if(!empty($qrTrans)){
-                            $user=Store::findOrFail($userId);
-    						$user->wallet -= $qrTrans->amount ;
-    						$user->save();
-                        
-                            $qrTrans->delete();
-                        }
-                        $walletHistory = RetailerWalletTxn::where('user_id', $qrTrans->user_id)->where('amount',$qrTrans->amount)->first();
-                        if(!empty($walletHistory)){
-                            $walletHistory->delete();
-                        }
-                        
-    }
+   public function qrRedeemDelete(Request $request, $id)
+{
+    return DB::transaction(function () use ($id) {
+        // 1. Fetch the transaction
+        $qrTrans = RetailerUserTxnHistory::findOrFail($id);
+
+        // 2. Fetch the user/store
+        $user = Store::where('id', $qrTrans->user_id)
+            ->orWhere('unique_code', $qrTrans->user_id)
+            ->orWhere('uid', $qrTrans->user_id)
+            ->first();
+
+        if (!$user) {
+            throw new \Exception("User associated with transaction not found.");
+        }
+
+        
+
+        // 4. Delete the linked wallet ledger entry
+        $mappedType = ($qrTrans->type == 'Earn') ? 1 : 2;
+        
+        DB::table('retailer_wallet_txns')
+            ->where('user_id', $qrTrans->user_id)
+            ->where('amount', $qrTrans->amount)
+            ->where('type', $mappedType)
+            ->orderBy('id', 'desc')
+            
+            ->delete();
+
+        // 5. Delete the main transaction history
+        $qrTrans->delete();
+
+        return response()->json(['message' => 'Transaction deleted and wallet adjusted.']);
+    });
+}
 	
 		
 }
