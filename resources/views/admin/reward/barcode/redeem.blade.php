@@ -116,62 +116,55 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                          <td>
                             {{ $item->amount }}
                         </td> 
-                         <td>
+                  <td>
                             {{ $item->description }}
-                             <div class="row__action">
-                                        <form action="{{ route('admin.reward.qrcode.redeem.delete',$item->id) }}" method="POST">
-                                            <a href="#newRangeModal" data-bs-toggle="modal">Edit</a>
-                                            <div class="modal fade" id="newRangeModal" tabindex="-1"  aria-labelledby="newRangeModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="newRangeModalLabel">Edit transaction</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <form action="{{ route('admin.reward.qrcode.redeem.delete',$item->id) }}" method="POST">@csrf
-                                                                
-                                                                <div class="row">
-                                                                    <div class="col-md-6">
-                                                                        <div class="form-group">
-                                                                            <div class="form-floating mb-3">
-                                                                                
-                                                                                <label for="state">Remarks *</label>
-                                                                                <textarea type="text" class="form-control" id="description" name="description" placeholder="name@example.com" value="{{ old('description') ? old('description') : $item->description }}"></textarea>
-                                                                                    
-                                                                            </div>
-                                                                            @error('description') <p class="small text-danger">{{$message}}</p> @enderror
-                                                                        </div>
-                                                                        <div class="form-group">
-                                                                            <div class="form-floating mb-3">
-                                                                                
-                                                                                <label for="state">Amount *</label>
-                                                                                <input type="number" class="form-control" id="amount" name="amount" placeholder="name@example.com" value="{{ old('amount') ? old('amount') : $item->amount }}">
-                                                                                    
-                                                                            </div>
-                                                                            @error('amount') <p class="small text-danger">{{$message}}</p> @enderror
-                                                                        </div>
-                                                                    </div> 
-                                                                </div>
-                                            
-                                                                <div class="col-12 mt-3">
-                                                                        <button type="submit" class="btn btn-sm btn-danger">Add Area</button>
-                                                                </div>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
+                    <div class="row__action">
+                    <a href="#editModal{{ $item->id }}" data-bs-toggle="modal" class="btn btn-sm btn-link">Edit</a>
+        
+                    <form action="{{ route('admin.reward.qrcode.redeem.delete', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-link text-danger">Delete</button>
+                    </form>
+            
+                    <div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $item->id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel{{ $item->id }}">Edit Transaction</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                
+                                <form action="{{ route('admin.reward.qrcode.redeem.update', $item->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT') <div class="modal-body text-start">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">Remarks *</label>
+                                                    <textarea class="form-control" name="description" rows="3">{{ old('description', $item->description) }}</textarea>
+                                                    @error('description') <p class="small text-danger">{{ $message }}</p> @enderror
+                                                </div>
+            
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">Amount *</label>
+                                                    <input type="number" class="form-control" name="amount" value="{{ old('amount', $item->amount) }}">
+                                                    @error('amount') <p class="small text-danger">{{ $message }}</p> @enderror
                                                 </div>
                                             </div>
-											 
-                                            @csrf
-                                            @method('DELETE')
-                                        
-                                           <button type="submit" onclick="return confirm('Are you sure ?')" class="btn-link" style="">Delete</button>
-                                           
-                                        </form>
+                                        </div>
                                     </div>
-                         </td> 
+                                    
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
                         <td>
                             {{ $item->amount_type }}( {{ $item->type }})
                          </td> 
