@@ -1088,8 +1088,13 @@ public function qrRedeemcsvExport(Request $request)
     });
 }
 
-
-    public function qrRedeemEdit(Request $request, $id)
+  public function qrRedeemEdit(Request $request, $id)
+{
+    $qrTrans = RetailerUserTxnHistory::findOrFail($id);
+    return view('admin.reward.barcode.redeem-edit', compact('qrTrans'));
+    
+}
+    public function qrRedeemUpdate(Request $request, $id)
 {
     return DB::transaction(function () use ($id) {
         // 1. Fetch the transaction
