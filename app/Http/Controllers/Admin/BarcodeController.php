@@ -1102,6 +1102,37 @@ public function qrRedeemcsvExport(Request $request)
         return response()->json(['message' => 'Transaction deleted and wallet adjusted.']);
     });
 }
+
+
+    public function qrRedeemEdit(Request $request, $id)
+{
+    return DB::transaction(function () use ($id) {
+        // 1. Fetch the transaction
+        $qrTrans = RetailerUserTxnHistory::findOrFail($id);
+        $mappedType = ($qrTrans->type == 'Earn') ? 1 : 2;
+         $qrTrans->amount = $request->amount;
+        $qrTrans->description = $request->description ?? null;
+        $qrTrans->save();
+        
+
+        // 4. Delete the linked wallet ledger entry
+        
+        
+        $retTran= DB::table('retailer_wallet_txns')
+            ->where('user_id', $qrTrans->user_id)
+            ->where('amount', $qrTrans->amount)
+            ->where('type', $mappedType)
+            ->orderBy('id', 'desc')
+            
+            ->first();
+         $retTran->amount = $request->amount;
+
+        // 5. Delete the main transaction history
+        $retTran->save();
+
+        return response()->json(['message' => 'Transaction deleted and wallet adjusted.']);
+    });
+}
 	
 		
 }
