@@ -1095,35 +1095,42 @@ public function qrRedeemcsvExport(Request $request)
     
 }
     public function qrRedeemUpdate(Request $request, $id)
-{
-    //dd($request->all());
+    {
+        //dd($request->all());
+        
+            $qrTrans = RetailerUserTxnHistory::findOrFail($id);
+            $oldAmount = $qrTrans->amount;
+            $newAmount = $request->amount;
+            $mappedType = ($qrTrans->type == 'Earn') ? 1 : 2;
     
-        // 1. Fetch the transaction
-        $qrTrans = RetailerUserTxnHistory::findOrFail($id);
-        $mappedType = ($qrTrans->type == 'Earn') ? 1 : 2;
-         $qrTrans->amount = $request->amount;
-        $qrTrans->description = $request->description ?? null;
-        $qrTrans->save();
-        
-
-        // 4. Delete the linked wallet ledger entry
-        
-        
-        $retTran= DB::table('retailer_wallet_txns')
-            ->where('user_id', $qrTrans->user_id)
-            ->where('amount', $qrTrans->amount)
-            ->where('type', $mappedType)
-            ->orderBy('id', 'desc')
-            
-            ->first();
-         $retTran->amount = $request->amount;
-
-        // 5. Delete the main transaction history
-        $retTran->save();
-
-        return redirect()->back()->with('success' , 'Transaction deleted and wallet adjusted.');
+            // 2. Find the ledger entry using the OLD amount
+            $walletEntry = DB::table('retailer_wallet_txns')
+                ->where('user_id', $qrTrans->user_id)
+                ->where('amount', $oldAmount) // Match the original value
+                ->where('type', $mappedType)
+                ->orderBy('id', 'desc')
+                ->first();
     
-}
+            if (!$walletEntry) {
+                throw new \Exception("Related wallet ledger entry not found.");
+            }
+    
+            // 3. Update the User's Actual Wallet Balance
+        
+    
+            // 4. Update the Transaction History
+            $qrTrans->amount = $newAmount;
+            $qrTrans->description = $request->description;
+            $qrTrans->save();
+    
+            // 5. Update the Ledger Entry
+            DB::table('retailer_wallet_txns')
+                ->where('id', $walletEntry->id)
+                ->update(['amount' => $newAmount]);
+    
+            return redirect()->back()->with('success' , 'Transaction deleted and wallet adjusted.');
+        
+    }
 	
 		
 }
