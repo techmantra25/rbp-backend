@@ -27,7 +27,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-										                 <label for="employee_id">Employee ID<span class="text-danger">*</span></label>
+										                 <label for="employee_id">Remarks<span class="text-danger">*</span></label>
                                     <div class="form-floating mb-3">
                                         <textarea type="text" class="form-control" id="description" name="description" placeholder="remarks" value="{{ old('description', $qrTrans->description) }}"></textarea>
                                        
