@@ -1883,13 +1883,13 @@ public function ledger_08_12_2025(Request $request)
             // ---------------------------------------------------------
             
             // Opening Balance: Last record BEFORE this date (before 00:00:00)
-            $openingRow = $sortedWallet->first(function ($txn) use ($date) {
+            $openingRow = $sortedWallet->last(function ($txn) use ($date) {
                 return $txn->created_at < $date . ' 00:00:00';
             });
             $openingBalance = $openingRow ? $openingRow->final_amount : 0;
 
             // Closing Balance: Last record ON OR BEFORE the end of this date (before 23:59:59)
-            $closingRow = $sortedWallet->first(function ($txn) use ($date) {
+            $closingRow = $sortedWallet->last(function ($txn) use ($date) {
                 return $txn->created_at <= $date . ' 23:59:59';
             });
             $closingBalance = $closingRow ? $closingRow->final_amount : $openingBalance;
