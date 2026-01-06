@@ -71,6 +71,7 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
     				<th>Points</th>
     				<th>Remarks</th>
                     <th>Type</th>
+                   
                 </tr>
             </thead>
             <tbody>
@@ -117,6 +118,18 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                         </td> 
                          <td>
                             {{ $item->description }}
+                             <div class="row__action">
+                                        <form action="{{ route('admin.reward.qrcode.redeem.destroy',$item->id) }}" method="POST">
+                                            <a href="{{ route('admin.reward.qrcode.redeem.edit', $item->id) }}">Edit</a>
+                                            
+											 
+                                            @csrf
+                                            @method('DELETE')
+                                        
+                                           <button type="submit" onclick="return confirm('Are you sure ?')" class="btn-link" style="">Delete</button>
+                                           
+                                        </form>
+                                    </div>
                          </td> 
                         <td>
                             {{ $item->amount_type }}( {{ $item->type }})
