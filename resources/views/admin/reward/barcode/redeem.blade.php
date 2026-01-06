@@ -135,7 +135,7 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 
-                                <form action="{{ route('admin.reward.qrcode.redeem.update', $item->id) }}" method="POST">
+                                <form action="{{ route('admin.reward.qrcode.redeem.edit', $item->id) }}" method="POST">
                                     @csrf
                                     @method('PUT') <div class="modal-body text-start">
                                         <div class="row">
