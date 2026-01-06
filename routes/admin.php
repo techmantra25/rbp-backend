@@ -335,7 +335,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [BarcodeController::class, 'qrRedeem'])->name('index');
             Route::get('/list/csv/export', [BarcodeController::class, 'qrRedeemcsvExport'])->name('csv.export');
             Route::post('/remove', [BarcodeController::class, 'qrRedeemRemove'])->name('remove');
-            
+            Route::post('/edit', [BarcodeController::class, 'qrRedeemEdit'])->name('edit');
+            Route::post('/delete', [BarcodeController::class, 'qrRedeemDelete'])->name('delete');
           
 
         });
