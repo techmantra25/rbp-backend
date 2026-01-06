@@ -86,8 +86,8 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
     			    
     			    
     			    //$ase->ase=DB::table('users')->where('id',$ase->ase_id)->first();
-    			    $state=DB::table('states')->where('id',$item->state_id)->first();
-    			    $area=DB::table('areas')->where('id',$item->area_id)->first();
+    			    $state=DB::table('states')->where('id',$item->store->state_id)->first();
+    			    $area=DB::table('areas')->where('id',$item->store->area_id)->first();
     			 @endphp
                   
     
@@ -96,16 +96,16 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
     					
     					
     					
-    				    <td>{{ $item->uid }}</td>
-                        <td>{{ $item->unique_code }}</td>
+    				    <td>{{ $item->store->uid }}</td>
+                        <td>{{ $item->store->unique_code }}</td>
                         <td>
-                            {{ ucwords($item->name)?? '' }}
+                            {{ ucwords($item->store->name)?? '' }}
                            
                             
                         </td>
     					
                        
-                        <td>{{ $item->email }}<br>{{ $item->contact }}</td>
+                        <td>{{ $item->store->email }}<br>{{ $item->store->contact }}</td>
                         <td>
                             {{ $area->name ?? ''}},{{ $state->name ?? ''}}
                         </td> 
