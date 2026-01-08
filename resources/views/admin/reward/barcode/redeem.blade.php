@@ -76,7 +76,9 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
             </thead>
             <tbody>
                 @forelse ($data as $index => $item)
-                
+                 @if(!$item->store)
+                    @continue
+                   @endif
     			  @php
     			    
     			    $state='';
