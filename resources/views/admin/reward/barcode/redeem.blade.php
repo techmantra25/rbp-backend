@@ -79,15 +79,19 @@ $allASE=DB::table('users')->where('type',6)->orderby('name')->groupby('name')->g
                 
     			  @php
     			    
-    			    
-    			    
+    			    $state='';
+    			    $area='';
     			    
     			    
     			    
     			    
     			    //$ase->ase=DB::table('users')->where('id',$ase->ase_id)->first();
+                    if(!empty($item->store->state_id)){
     			    $state=DB::table('states')->where('id',$item->store->state_id)->first();
+                     }
+                if(!empty($item->store->area_id)){
     			    $area=DB::table('areas')->where('id',$item->store->area_id)->first();
+                }
     			 @endphp
                   
     
