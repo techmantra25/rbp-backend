@@ -2868,27 +2868,27 @@ public function adjustment(Request $request,$id)
             $walletTxn = new RetailerWalletTxn();
             $walletTxn->user_id = $user->uid;
             $walletTxn->amount = $points;
-            $walletTxn->type = 1;
-            $walletTxn->final_amount = $lastWallet ? $lastWallet->final_amount + $points : $points;
+            $walletTxn->type = 2;
+            $walletTxn->final_amount = $lastWallet ? $lastWallet->final_amount - $points : $points;
             $walletTxn->entry_date = $entry;
-            $walletTxn->created_at = $entry.'16:57:16';
+            $walletTxn->created_at = $entry.' '.date('H:i:s');
             $walletTxn->save();
 
             $history = new RetailerUserTxnHistory();
             $history->user_id = $user->uid;
             $history->amount = $points;
-            $history->type = 'Earn';
-            $history->title = $points." points earn";
+            $history->type = 'Debit';
+            $history->title = $points." points debit for sales return";
             $history->description = $remarks;
-            $history->amount_type = 'SALES';
-            $history->status = 'increment';
+            $history->amount_type = 'Sales Return';
+            $history->status = 'decrement';
             $history->entry_date = $entry;
-            $history->created_at = $entry.'16:57:16';
+            $history->created_at = $entry.' '.date('H:i:s')';
             $history->save();
 
             /* SUCCESS PROCESS */
 
-            $user->wallet += $points;
+            $user->wallet -= $points;
             $user->save();
             $successCount++;
             $i++;
