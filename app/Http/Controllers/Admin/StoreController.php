@@ -2883,7 +2883,7 @@ public function adjustment(Request $request,$id)
             $history->amount_type = 'Sales Return';
             $history->status = 'decrement';
             $history->entry_date = $entry;
-            $history->created_at = $entry.' '.date('H:i:s')';
+            $history->created_at = $entry.' '.date('H:i:s');
             $history->save();
 
             /* SUCCESS PROCESS */
